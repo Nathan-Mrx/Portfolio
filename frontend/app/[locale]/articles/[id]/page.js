@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from 'react';
 import { useLocale } from 'next-intl';
 import BlockRenderer from '@/components/BlockRenderer';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Briefcase } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export default function ArticleDetail({ params: paramsPromise }) {
@@ -46,7 +46,12 @@ export default function ArticleDetail({ params: paramsPromise }) {
 
                 <article>
                     <header className="article-header">
-                        <span className="id-tag">[{new Date(article.publishedAt).toLocaleDateString()}]</span>
+                        <div className="article-meta">
+                            <span className="id-tag">[{new Date(article.publishedAt).toLocaleDateString()}]</span>
+                            {article.updatedAt && (
+                                <span className="update-tag">Updated: {new Date(article.updatedAt).toLocaleDateString()}</span>
+                            )}
+                        </div>
                         <h1 style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>{title}</h1>
                         {summary && <div className="summary-section">{summary}</div>}
                     </header>
@@ -54,6 +59,46 @@ export default function ArticleDetail({ params: paramsPromise }) {
                     <div className="blocks-wrapper">
                         <BlockRenderer blocks={article.contentBlocks} />
                     </div>
+
+                    {article.linkedProjects && article.linkedProjects.length > 0 && (
+                        <div className="related-content">
+                            <h2 className="related-title">Related Projects</h2>
+                            <div className="related-grid">
+                                {article.linkedProjects.map(project => (
+                                    <Link key={project.id} href={`/projects/${project.id}`} className="related-card glass">
+                                        <div className="related-card-img">
+                                            {project.thumbnailUrl ? (
+                                                <img src={project.thumbnailUrl} alt={project.titleEn} />
+                                            ) : (
+                                                <div className="placeholder-icon"><Briefcase size={24} /></div>
+                                            )}
+                                        </div>
+                                        <div className="related-card-info">
+                                            <h4>{locale === 'fr' ? project.titleFr : project.titleEn}</h4>
+                                            <p>{locale === 'fr' ? project.descriptionFr : project.descriptionEn}</p>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {article.relatedArticles && article.relatedArticles.length > 0 && (
+                        <div className="related-content" style={{ marginTop: '2rem', borderTop: 'none' }}>
+                            <h2 className="related-title">More Articles</h2>
+                            <div className="related-grid list">
+                                {article.relatedArticles.map(relArt => (
+                                    <Link key={relArt.id} href={`/articles/${relArt.id}`} className="related-article-item glass">
+                                        <div className="related-article-info">
+                                            <span className="article-date">{new Date(relArt.publishedAt).toLocaleDateString()}</span>
+                                            <h4>{locale === 'fr' ? relArt.titleFr : relArt.titleEn}</h4>
+                                        </div>
+                                        <Briefcase size={18} />
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </article>
             </div>
         </div>

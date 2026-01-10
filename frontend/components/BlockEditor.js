@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash, MoveUp, MoveDown, Type, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash, MoveUp, MoveDown, Type, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 
 export default function BlockEditor({ blocks, onChange }) {
+    const [uploadingIndex, setUploadingIndex] = useState(null);
+
     const addBlock = (type) => {
         const newBlock = type === 'text'
             ? { type: 'text', contentEn: '', contentFr: '' }
@@ -30,6 +32,45 @@ export default function BlockEditor({ blocks, onChange }) {
         newBlocks[index] = newBlocks[index + direction];
         newBlocks[index + direction] = temp;
         onChange(newBlocks);
+    };
+
+    const handleImageUpload = async (index, file) => {
+        if (!file) return;
+
+        setUploadingIndex(index);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/media_objects`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                console.error('Upload error:', errorData);
+                const msg = errorData.message || errorData['hydra:description'] || 'Upload failed';
+                throw new Error(`${msg} (Status: ${res.status})`);
+            }
+
+            const data = await res.json();
+            updateBlock(index, { url: data.contentUrl });
+        } catch (error) {
+            if (error.message.includes('401')) {
+                alert('Session expired. Please log in again.');
+                window.location.href = '/login';
+                return;
+            }
+            console.error('File upload error:', error);
+            alert(`Failed to upload image: ${error.message}`);
+        } finally {
+            setUploadingIndex(null);
+        }
     };
 
     return (
@@ -67,16 +108,44 @@ export default function BlockEditor({ blocks, onChange }) {
                             </div>
                         ) : (
                             <div className="image-block-content">
-                                <div className="field-group full">
-                                    <label>Image URL</label>
-                                    <input
-                                        type="text"
-                                        className="admin-input"
-                                        value={block.url}
-                                        onChange={(e) => updateBlock(index, { url: e.target.value })}
-                                        placeholder="https://..."
-                                    />
+                                <div className="upload-section">
+                                    <div className="url-input-wrapper">
+                                        <label>Image URL</label>
+                                        <input
+                                            type="text"
+                                            className="admin-input"
+                                            value={block.url}
+                                            onChange={(e) => updateBlock(index, { url: e.target.value })}
+                                            placeholder="https://..."
+                                        />
+                                    </div>
+                                    <div className="upload-button-wrapper">
+                                        <label>&nbsp;</label>
+                                        <label className="upload-label">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleImageUpload(index, e.target.files[0])}
+                                                style={{ display: 'none' }}
+                                            />
+                                            <div className="upload-trigger">
+                                                {uploadingIndex === index ? (
+                                                    <Loader2 className="animate-spin" size={20} />
+                                                ) : (
+                                                    <>
+                                                        <Upload size={18} />
+                                                        <span>Upload</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </label>
+                                    </div>
                                 </div>
+                                {block.url && (
+                                    <div className="image-preview">
+                                        <img src={block.url} alt="Preview" />
+                                    </div>
+                                )}
                                 <div className="bilingual-grid">
                                     <div className="field-group">
                                         <label>Title (EN)</label>
@@ -179,15 +248,65 @@ export default function BlockEditor({ blocks, onChange }) {
                     grid-template-columns: 1fr 1fr;
                     gap: 2rem;
                 }
+                .upload-section {
+                    display: flex;
+                    gap: 1rem;
+                    grid-column: span 2;
+                    margin-bottom: 1rem;
+                }
+                .url-input-wrapper {
+                    flex: 1;
+                }
+                .upload-button-wrapper {
+                    flex-shrink: 0;
+                }
+                .upload-label {
+                    cursor: pointer;
+                }
+                .upload-trigger {
+                    height: 44px;
+                    background: #1a1a1a;
+                    border: 1px solid #333;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0 1rem;
+                    color: #888;
+                    transition: all 0.2s;
+                    margin-top: 0;
+                }
+                .upload-trigger:hover {
+                    background: #222;
+                    border-color: var(--primary);
+                    color: var(--primary);
+                }
+                .image-preview {
+                    grid-column: span 2;
+                    margin-bottom: 1.5rem;
+                    border-radius: 4px;
+                    overflow: hidden;
+                    border: 1px solid #333;
+                    max-height: 200px;
+                    background: #000;
+                }
+                .image-preview img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                }
+                .animate-spin {
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
                 .field-group label {
                     display: block;
                     font-size: 0.85rem;
                     color: #888;
                     margin-bottom: 0.5rem;
-                }
-                .field-group.full {
-                    grid-column: span 2;
-                    margin-bottom: 1rem;
                 }
                 .mt-2 { margin-top: 1rem; }
                 .admin-input {

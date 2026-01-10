@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from 'react';
 import { useLocale } from 'next-intl';
 import BlockRenderer from '@/components/BlockRenderer';
-import { ChevronLeft, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ExternalLink, FileText, ArrowRight, Briefcase } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 
 export default function ProjectDetail({ params: paramsPromise }) {
@@ -45,22 +45,66 @@ export default function ProjectDetail({ params: paramsPromise }) {
                 )}
 
                 <main>
-                    <header className="project-header" style={{ background: 'rgba(10, 10, 10, 0.8)', backdropFilter: 'blur(20px)', padding: '3rem', border: '1px solid #222', borderRadius: '16px' }}>
-                        <span className="id-tag">PROJECT_ID_{project.id}</span>
-                        <h1 style={{ fontSize: '4rem', margin: '1.5rem 0', lineHeight: '1', letterSpacing: '-2px' }}>{title}</h1>
-                        <div className="summary-section" style={{ border: 'none', padding: '0', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                            {description && <p className="description">{description}</p>}
+                    <article>
+                        <header className="project-header">
+                            <div className="project-meta">
+                                <span className="id-tag">[{new Date(project.publishedAt || project.createdAt).toLocaleDateString()}]</span>
+                                {project.updatedAt && (
+                                    <span className="update-tag">Updated: {new Date(project.updatedAt).toLocaleDateString()}</span>
+                                )}
+                            </div>
+                            <h1 style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>{title}</h1>
+                            {description && <div className="summary-section">{description}</div>}
                             {project.link && (
-                                <a href={project.link} target="_blank" rel="noopener noreferrer" className="live-link">
-                                    Launch Execution <ExternalLink size={18} />
+                                <a href={project.link} target="_blank" rel="noopener noreferrer" className="external-link">
+                                    View Project <ExternalLink size={18} />
                                 </a>
                             )}
+                        </header>
+                        <div className="blocks-wrapper">
+                            <BlockRenderer blocks={project.contentBlocks} />
                         </div>
-                    </header>
 
-                    <div className="blocks-wrapper">
-                        <BlockRenderer blocks={project.contentBlocks} />
-                    </div>
+                        {project.linkedArticles && project.linkedArticles.length > 0 && (
+                            <div className="related-content">
+                                <h2 className="related-title">Related Articles</h2>
+                                <div className="related-grid list">
+                                    {project.linkedArticles.map(article => (
+                                        <Link key={article.id} href={`/articles/${article.id}`} className="related-article-item glass">
+                                            <div className="related-article-info">
+                                                <span className="article-date">{new Date(article.publishedAt).toLocaleDateString()}</span>
+                                                <h4>{locale === 'fr' ? article.titleFr : article.titleEn}</h4>
+                                            </div>
+                                            <ArrowRight size={18} />
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {project.relatedProjects && project.relatedProjects.length > 0 && (
+                            <div className="related-content" style={{ marginTop: '2rem', borderTop: 'none' }}>
+                                <h2 className="related-title">More Projects</h2>
+                                <div className="related-grid">
+                                    {project.relatedProjects.map(relProj => (
+                                        <Link key={relProj.id} href={`/projects/${relProj.id}`} className="related-card glass">
+                                            <div className="related-card-img">
+                                                {relProj.thumbnailUrl ? (
+                                                    <img src={relProj.thumbnailUrl} alt={relProj.titleEn} />
+                                                ) : (
+                                                    <div className="placeholder-icon"><Briefcase size={24} /></div>
+                                                )}
+                                            </div>
+                                            <div className="related-card-info">
+                                                <h4>{locale === 'fr' ? relProj.titleFr : relProj.titleEn}</h4>
+                                                <p>{locale === 'fr' ? relProj.descriptionFr : relProj.descriptionEn}</p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </article>
                 </main>
             </div>
         </div>

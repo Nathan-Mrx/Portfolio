@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { useRouter } from '@/i18n/routing';
 import BlockEditor from '@/components/BlockEditor';
+import RelationSelector from '@/components/RelationSelector';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function CreateArticle() {
     const router = useRouter();
@@ -11,9 +13,11 @@ export default function CreateArticle() {
         titleFr: '',
         contentEn: '',
         contentFr: '',
-        thumbnailUrl: '',
-        coverUrl: '',
-        contentBlocks: []
+        thumbnailUrl: null,
+        coverUrl: null,
+        contentBlocks: [],
+        linkedProjects: [],
+        relatedArticles: []
     });
     const [loading, setLoading] = useState(false);
 
@@ -21,21 +25,42 @@ export default function CreateArticle() {
         e.preventDefault();
         setLoading(true);
         const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Security token missing. Please log in again.');
+            setLoading(false);
+            return;
+        }
 
         try {
+            const payload = {
+                ...formData,
+                linkedProjects: formData.linkedProjects?.filter(p => p.id).map(p => `/api/projects/${p.id}`) || [],
+                relatedArticles: formData.relatedArticles?.filter(a => a.id).map(a => `/api/articles/${a.id}`) || []
+            };
+
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/articles`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/ld+json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
-            if (!res.ok) throw new Error('Failed to create article');
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                console.error('Submission error:', errorData);
+                const msg = errorData['hydra:description'] || errorData['detail'] || errorData['message'] || 'Failed to create article';
+                throw new Error(`${msg} (Status: ${res.status})`);
+            }
 
             router.push('/admin');
         } catch (err) {
+            if (err.message.includes('401')) {
+                localStorage.removeItem('token');
+                router.push('/login');
+                return;
+            }
             alert(err.message);
         } finally {
             setLoading(false);
@@ -101,31 +126,41 @@ export default function CreateArticle() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div>
-                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>THUMBNAIL URL</label>
-                        <input
-                            style={inputStyle}
-                            value={formData.thumbnailUrl}
-                            onChange={e => setFormData({ ...formData, thumbnailUrl: e.target.value })}
-                            placeholder="Small card image"
-                        />
-                    </div>
-                    <div>
-                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>COVER URL</label>
-                        <input
-                            style={inputStyle}
-                            value={formData.coverUrl}
-                            onChange={e => setFormData({ ...formData, coverUrl: e.target.value })}
-                            placeholder="Full width header image"
-                        />
-                    </div>
+                    <ImageUpload
+                        label="Thumbnail Image"
+                        id="thumbnail-upload"
+                        value={formData.thumbnailUrl}
+                        onChange={(url) => setFormData({ ...formData, thumbnailUrl: url })}
+                    />
+                    <ImageUpload
+                        label="Cover Image"
+                        id="cover-upload"
+                        value={formData.coverUrl}
+                        onChange={(url) => setFormData({ ...formData, coverUrl: url })}
+                    />
                 </div>
 
-                <div style={{ marginTop: '2rem' }}>
-                    <h3 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '0.9rem', letterSpacing: '2px' }}>MODULAR CONTENT BLOCKS</h3>
+                <div className="form-section">
+                    <h2>Modular Content</h2>
                     <BlockEditor
                         blocks={formData.contentBlocks}
-                        onChange={blocks => setFormData({ ...formData, contentBlocks: blocks })}
+                        onChange={(blocks) => setFormData({ ...formData, contentBlocks: blocks })}
+                    />
+                </div>
+
+                <div className="form-section">
+                    <h2>Related Content</h2>
+                    <RelationSelector
+                        type="project"
+                        label="Linked Projects"
+                        value={formData.linkedProjects}
+                        onChange={(val) => setFormData({ ...formData, linkedProjects: val })}
+                    />
+                    <RelationSelector
+                        type="article"
+                        label="Related Articles"
+                        value={formData.relatedArticles}
+                        onChange={(val) => setFormData({ ...formData, relatedArticles: val })}
                     />
                 </div>
 

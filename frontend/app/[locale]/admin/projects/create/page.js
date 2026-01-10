@@ -1,43 +1,68 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { useRouter } from '@/i18n/routing';
 import BlockEditor from '@/components/BlockEditor';
+import ImageUpload from '@/components/ImageUpload';
+import RelationSelector from '@/components/RelationSelector';
 
-export default function CreateProject() {
+export default function CreateProject({ params }) {
+    const { locale } = use(params);
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         titleEn: '',
         titleFr: '',
         descriptionEn: '',
         descriptionFr: '',
-        imageUrl: '',
-        thumbnailUrl: '',
-        coverUrl: '',
+        thumbnailUrl: null,
+        coverUrl: null,
         link: '',
-        contentBlocks: []
+        contentBlocks: [],
+        linkedArticles: [],
+        relatedProjects: []
     });
-    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Security token missing. Please log in again.');
+            setLoading(false);
+            return;
+        }
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/projects`, {
+            const payload = {
+                ...formData,
+                linkedArticles: formData.linkedArticles?.filter(a => a.id).map(a => `/api/articles/${a.id}`) || [],
+                relatedProjects: formData.relatedProjects?.filter(p => p.id).map(p => `/api/projects/${p.id}`) || []
+            };
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/ld+json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload)
             });
 
-            if (!res.ok) throw new Error('Failed to create project');
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                console.error('Submission error:', errorData);
+                const msg = errorData['hydra:description'] || errorData['detail'] || errorData['message'] || 'Failed to create project';
+                throw new Error(`${msg} (Status: ${res.status})`);
+            }
 
             router.push('/admin');
         } catch (err) {
+            if (err.message.includes('401')) {
+                localStorage.removeItem('token');
+                router.push('/login');
+                return;
+            }
             alert(err.message);
         } finally {
             setLoading(false);
@@ -103,24 +128,18 @@ export default function CreateProject() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div>
-                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>THUMBNAIL URL</label>
-                        <input
-                            style={inputStyle}
-                            value={formData.thumbnailUrl}
-                            onChange={e => setFormData({ ...formData, thumbnailUrl: e.target.value })}
-                            placeholder="Small card image"
-                        />
-                    </div>
-                    <div>
-                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>COVER URL</label>
-                        <input
-                            style={inputStyle}
-                            value={formData.coverUrl}
-                            onChange={e => setFormData({ ...formData, coverUrl: e.target.value })}
-                            placeholder="Full width header image"
-                        />
-                    </div>
+                    <ImageUpload
+                        label="Thumbnail Image"
+                        id="thumbnail-upload"
+                        value={formData.thumbnailUrl}
+                        onChange={(url) => setFormData({ ...formData, thumbnailUrl: url })}
+                    />
+                    <ImageUpload
+                        label="Cover Image"
+                        id="cover-upload"
+                        value={formData.coverUrl}
+                        onChange={(url) => setFormData({ ...formData, coverUrl: url })}
+                    />
                 </div>
 
                 <div>
@@ -141,11 +160,27 @@ export default function CreateProject() {
                     />
                 </div>
 
-                <div style={{ marginTop: '2rem' }}>
-                    <h3 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '0.9rem', letterSpacing: '2px' }}>MODULAR CONTENT BLOCKS</h3>
+                <div className="form-section">
+                    <h2>Modular Content</h2>
                     <BlockEditor
                         blocks={formData.contentBlocks}
-                        onChange={blocks => setFormData({ ...formData, contentBlocks: blocks })}
+                        onChange={(blocks) => setFormData({ ...formData, contentBlocks: blocks })}
+                    />
+                </div>
+
+                <div className="form-section">
+                    <h2>Related Content</h2>
+                    <RelationSelector
+                        type="article"
+                        label="Linked Articles"
+                        value={formData.linkedArticles}
+                        onChange={(val) => setFormData({ ...formData, linkedArticles: val })}
+                    />
+                    <RelationSelector
+                        type="project"
+                        label="Related Projects"
+                        value={formData.relatedProjects}
+                        onChange={(val) => setFormData({ ...formData, relatedProjects: val })}
                     />
                 </div>
 
