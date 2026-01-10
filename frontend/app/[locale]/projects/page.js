@@ -7,7 +7,7 @@ export default async function Projects({ params }) {
 
     try {
         const data = await fetchAPI('/projects');
-        projects = data['hydra:member'] || [];
+        projects = data['hydra:member'] || data['member'] || [];
     } catch (error) {
         console.error('Failed to fetch projects:', error);
     }

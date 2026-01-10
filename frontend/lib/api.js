@@ -4,6 +4,7 @@ export async function fetchAPI(endpoint, options = {}) {
     const res = await fetch(`${API_URL}${endpoint}`, {
         headers: {
             "Content-Type": "application/ld+json",
+            "Accept": "application/ld+json",
             ...options.headers,
         },
         ...options,

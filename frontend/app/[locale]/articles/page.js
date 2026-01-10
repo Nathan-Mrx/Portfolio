@@ -6,7 +6,7 @@ export default async function Articles({ params }) {
 
     try {
         const data = await fetchAPI('/articles');
-        articles = data['hydra:member'] || [];
+        articles = data['hydra:member'] || data['member'] || [];
     } catch (error) {
         console.error('Failed to fetch articles:', error);
     }

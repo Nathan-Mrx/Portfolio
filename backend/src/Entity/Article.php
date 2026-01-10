@@ -6,8 +6,13 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 #[ORM\Entity]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['article:read']],
+    denormalizationContext: ['groups' => ['article:write']]
+)]
 class Article
 {
     #[ORM\Id]
@@ -16,18 +21,23 @@ class Article
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['article:read', 'article:write'])]
     private ?string $titleEn = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['article:read', 'article:write'])]
     private ?string $titleFr = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['article:read', 'article:write'])]
     private ?string $contentEn = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['article:read', 'article:write'])]
     private ?string $contentFr = null;
 
     #[ORM\Column]
+    #[Groups(['article:read', 'article:write'])]
     private ?\DateTimeImmutable $publishedAt = null;
 
     public function __construct()

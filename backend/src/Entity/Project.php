@@ -7,8 +7,13 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProjectRepository;
 use ApiPlatform\Metadata\ApiResource;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 #[ORM\Entity]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['project:read']],
+    denormalizationContext: ['groups' => ['project:write']]
+)]
 class Project
 {
     #[ORM\Id]
@@ -17,24 +22,31 @@ class Project
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['project:read', 'project:write'])]
     private ?string $titleEn = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['project:read', 'project:write'])]
     private ?string $titleFr = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['project:read', 'project:write'])]
     private ?string $descriptionEn = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['project:read', 'project:write'])]
     private ?string $descriptionFr = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['project:read', 'project:write'])]
     private ?string $imageUrl = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['project:read', 'project:write'])]
     private ?string $link = null;
 
     #[ORM\Column]
+    #[Groups(['project:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
