@@ -40,6 +40,18 @@ class Article
     #[Groups(['article:read', 'article:write'])]
     private ?\DateTimeImmutable $publishedAt = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['article:read', 'article:write'])]
+    private ?string $thumbnailUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['article:read', 'article:write'])]
+    private ?string $coverUrl = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['article:read', 'article:write'])]
+    private ?array $contentBlocks = null;
+
     public function __construct()
     {
         $this->publishedAt = new \DateTimeImmutable();
@@ -106,6 +118,42 @@ class Article
     public function setPublishedAt(\DateTimeImmutable $publishedAt): static
     {
         $this->publishedAt = $publishedAt;
+
+        return $this;
+    }
+
+    public function getThumbnailUrl(): ?string
+    {
+        return $this->thumbnailUrl;
+    }
+
+    public function setThumbnailUrl(?string $thumbnailUrl): static
+    {
+        $this->thumbnailUrl = $thumbnailUrl;
+
+        return $this;
+    }
+
+    public function getCoverUrl(): ?string
+    {
+        return $this->coverUrl;
+    }
+
+    public function setCoverUrl(?string $coverUrl): static
+    {
+        $this->coverUrl = $coverUrl;
+
+        return $this;
+    }
+
+    public function getContentBlocks(): ?array
+    {
+        return $this->contentBlocks;
+    }
+
+    public function setContentBlocks(?array $contentBlocks): static
+    {
+        $this->contentBlocks = $contentBlocks;
 
         return $this;
     }

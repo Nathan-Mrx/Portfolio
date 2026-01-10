@@ -45,6 +45,18 @@ class Project
     #[Groups(['project:read', 'project:write'])]
     private ?string $link = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['project:read', 'project:write'])]
+    private ?string $thumbnailUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['project:read', 'project:write'])]
+    private ?string $coverUrl = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['project:read', 'project:write'])]
+    private ?array $contentBlocks = null;
+
     #[ORM\Column]
     #[Groups(['project:read'])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -139,6 +151,42 @@ class Project
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getThumbnailUrl(): ?string
+    {
+        return $this->thumbnailUrl;
+    }
+
+    public function setThumbnailUrl(?string $thumbnailUrl): static
+    {
+        $this->thumbnailUrl = $thumbnailUrl;
+
+        return $this;
+    }
+
+    public function getCoverUrl(): ?string
+    {
+        return $this->coverUrl;
+    }
+
+    public function setCoverUrl(?string $coverUrl): static
+    {
+        $this->coverUrl = $coverUrl;
+
+        return $this;
+    }
+
+    public function getContentBlocks(): ?array
+    {
+        return $this->contentBlocks;
+    }
+
+    public function setContentBlocks(?array $contentBlocks): static
+    {
+        $this->contentBlocks = $contentBlocks;
 
         return $this;
     }

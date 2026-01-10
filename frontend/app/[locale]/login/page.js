@@ -15,7 +15,10 @@ export default function Login() {
         setError('');
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/login_check`, {
+            const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/login_check`;
+            console.log('Attempting login to:', apiUrl);
+
+            const res = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -31,13 +34,14 @@ export default function Login() {
             localStorage.setItem('token', data.token);
             router.push('/admin');
         } catch (err) {
+            console.error('Fetch error details:', err);
             setError(err.message);
         }
     };
 
     return (
         <div className={styles.container}>
-            <form onSubmit={handleSubmit} className={`glass ${styles.form}`}>
+            <form onSubmit={handleSubmit} className={`glass ${styles.form}`} suppressHydrationWarning>
                 <h1 className={styles.title}>System Access</h1>
 
                 {error && <p className={styles.error}>{error}</p>}
@@ -50,6 +54,7 @@ export default function Login() {
                         onChange={(e) => setEmail(e.target.value)}
                         className={styles.input}
                         required
+                        suppressHydrationWarning
                     />
                 </div>
 
@@ -61,6 +66,7 @@ export default function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                         className={styles.input}
                         required
+                        suppressHydrationWarning
                     />
                 </div>
 

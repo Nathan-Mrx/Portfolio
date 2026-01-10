@@ -68,3 +68,28 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 auto;
   padding: 0 1rem;
 }
+
+/* Card Styles */
+.project-card, .article-card {
+  transition: all 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--primary) !important;
+  box-shadow: 0 10px 30px rgba(0, 255, 157, 0.1);
+}
+
+.project-card:hover .card-image {
+  transform: scale(1.05);
+}
+
+.article-card:hover {
+  border-color: var(--primary) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  transform: translateX(10px);
+}
+
+.card-image {
+  transition: transform 0.5s ease;
+}

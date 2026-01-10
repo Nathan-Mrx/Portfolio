@@ -12,28 +12,54 @@ export default async function Articles({ params }) {
     }
 
     const { getTranslations } = await import('next-intl/server');
+    const { Link } = await import('@/i18n/routing');
     const t = await getTranslations('Articles');
 
     return (
         <div className="container" style={{ paddingTop: '4rem' }}>
             <h1 style={{ marginBottom: '2rem', fontSize: '2.5rem' }}>{t('title')}</h1>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 {articles.length === 0 ? (
                     <p>No articles found.</p>
                 ) : (
                     articles.map((article) => (
-                        <article key={article.id} className="glass" style={{ padding: '2rem', borderRadius: '12px' }}>
-                            <h2 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>
-                                {locale === 'fr' ? article.titleFr : article.titleEn}
-                            </h2>
-                            <p style={{ color: '#ccc', marginBottom: '1rem', lineHeight: '1.6' }}>
-                                {locale === 'fr' ? article.contentFr : article.contentEn}
-                            </p>
-                            <div style={{ fontSize: '0.9rem', color: '#666' }}>
-                                {new Date(article.publishedAt).toLocaleDateString(locale)}
+                        <Link
+                            key={article.id}
+                            href={`/articles/${article.id}`}
+                            className="glass article-card"
+                            style={{
+                                display: 'flex',
+                                gap: '2rem',
+                                padding: '1.5rem',
+                                borderRadius: '16px',
+                                textDecoration: 'none',
+                                color: 'inherit',
+                                border: '1px solid #222',
+                                transition: 'all 0.3s'
+                            }}
+                        >
+                            {article.thumbnailUrl && (
+                                <div style={{ width: '200px', height: '140px', flexShrink: 0, overflow: 'hidden', borderRadius: '8px' }}>
+                                    <img
+                                        src={article.thumbnailUrl}
+                                        alt=""
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                </div>
+                            )}
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontFamily: 'monospace', marginBottom: '0.5rem' }}>
+                                    {new Date(article.publishedAt).toLocaleDateString(locale)}
+                                </div>
+                                <h2 style={{ marginBottom: '0.75rem', fontSize: '1.5rem' }}>
+                                    {locale === 'fr' ? article.titleFr : article.titleEn}
+                                </h2>
+                                <p style={{ color: '#888', lineHeight: '1.6', fontSize: '1rem' }}>
+                                    {locale === 'fr' ? article.contentFr : article.contentEn}
+                                </p>
                             </div>
-                        </article>
+                        </Link>
                     ))
                 )}
             </div>

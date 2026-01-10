@@ -26,37 +26,59 @@ export default async function Projects({ params }) {
 
     // Actually, I can just use `getTranslations` here.
     const { getTranslations } = await import('next-intl/server');
+    const { Link } = await import('@/i18n/routing');
     const t = await getTranslations('Projects');
 
     return (
         <div className="container" style={{ paddingTop: '4rem' }}>
             <h1 style={{ marginBottom: '2rem', fontSize: '2.5rem' }}>{t('title')}</h1>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2.5rem' }}>
                 {projects.length === 0 ? (
                     <p>No projects found.</p>
                 ) : (
                     projects.map((project) => (
-                        <div key={project.id} className="glass" style={{ padding: '1.5rem', borderRadius: '12px' }}>
-                            {project.imageUrl && (
-                                <img
-                                    src={project.imageUrl}
-                                    alt={locale === 'fr' ? project.titleFr : project.titleEn}
-                                    style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px', marginBottom: '1rem' }}
-                                />
-                            )}
-                            <h2 style={{ marginBottom: '0.5rem' }}>
-                                {locale === 'fr' ? project.titleFr : project.titleEn}
-                            </h2>
-                            <p style={{ color: '#aaa', marginBottom: '1rem' }}>
-                                {locale === 'fr' ? project.descriptionFr : project.descriptionEn}
-                            </p>
-                            {project.link && (
-                                <a href={project.link} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>
-                                    {t('viewProject')} &rarr;
-                                </a>
-                            )}
-                        </div>
+                        <Link
+                            key={project.id}
+                            href={`/projects/${project.id}`}
+                            className="glass project-card"
+                            style={{
+                                display: 'block',
+                                padding: '0',
+                                borderRadius: '16px',
+                                overflow: 'hidden',
+                                textDecoration: 'none',
+                                color: 'inherit',
+                                border: '1px solid #222',
+                                transition: 'transform 0.3s, border-color 0.3s'
+                            }}
+                        >
+                            <div style={{ height: '220px', width: '100%', overflow: 'hidden', background: '#111' }}>
+                                {(project.thumbnailUrl || project.imageUrl) ? (
+                                    <img
+                                        src={project.thumbnailUrl || project.imageUrl}
+                                        alt={locale === 'fr' ? project.titleFr : project.titleEn}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
+                                        className="card-image"
+                                    />
+                                ) : (
+                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>
+                                        NO_IMAGE
+                                    </div>
+                                )}
+                            </div>
+                            <div style={{ padding: '1.5rem' }}>
+                                <h2 style={{ marginBottom: '0.75rem', fontSize: '1.25rem' }}>
+                                    {locale === 'fr' ? project.titleFr : project.titleEn}
+                                </h2>
+                                <p style={{ color: '#888', marginBottom: '1.5rem', fontSize: '0.95rem', lineHeight: '1.5', height: '2.8rem', overflow: 'hidden' }}>
+                                    {locale === 'fr' ? project.descriptionFr : project.descriptionEn}
+                                </p>
+                                <span style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                                    VIEW_DETAILS &rarr;
+                                </span>
+                            </div>
+                        </Link>
                     ))
                 )}
             </div>

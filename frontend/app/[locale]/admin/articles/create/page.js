@@ -4,17 +4,15 @@ import { useState } from 'react';
 import { useRouter } from '@/i18n/routing';
 import BlockEditor from '@/components/BlockEditor';
 
-export default function CreateProject() {
+export default function CreateArticle() {
     const router = useRouter();
     const [formData, setFormData] = useState({
         titleEn: '',
         titleFr: '',
-        descriptionEn: '',
-        descriptionFr: '',
-        imageUrl: '',
+        contentEn: '',
+        contentFr: '',
         thumbnailUrl: '',
         coverUrl: '',
-        link: '',
         contentBlocks: []
     });
     const [loading, setLoading] = useState(false);
@@ -25,7 +23,7 @@ export default function CreateProject() {
         const token = localStorage.getItem('token');
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/projects`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/articles`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/ld+json',
@@ -34,7 +32,7 @@ export default function CreateProject() {
                 body: JSON.stringify(formData),
             });
 
-            if (!res.ok) throw new Error('Failed to create project');
+            if (!res.ok) throw new Error('Failed to create article');
 
             router.push('/admin');
         } catch (err) {
@@ -52,12 +50,12 @@ export default function CreateProject() {
         color: '#fff',
         borderRadius: '4px',
         marginBottom: '1rem',
-        fontFamily: 'inherit' // Ensures input inherits proper font
+        fontFamily: 'inherit'
     };
 
     return (
         <div style={{ maxWidth: '800px' }}>
-            <h1 style={{ marginBottom: '2rem' }}>Initialize New Project</h1>
+            <h1 style={{ marginBottom: '2rem' }}>Publish New Intelligence Report</h1>
 
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -83,20 +81,20 @@ export default function CreateProject() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
-                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>DESCRIPTION (EN)</label>
+                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>SUMMARY (EN)</label>
                         <textarea
-                            style={{ ...inputStyle, minHeight: '100px' }}
-                            value={formData.descriptionEn}
-                            onChange={e => setFormData({ ...formData, descriptionEn: e.target.value })}
+                            style={{ ...inputStyle, minHeight: '80px' }}
+                            value={formData.contentEn}
+                            onChange={e => setFormData({ ...formData, contentEn: e.target.value })}
                             required
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>DESCRIPTION (FR)</label>
+                        <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>SUMMARY (FR)</label>
                         <textarea
-                            style={{ ...inputStyle, minHeight: '100px' }}
-                            value={formData.descriptionFr}
-                            onChange={e => setFormData({ ...formData, descriptionFr: e.target.value })}
+                            style={{ ...inputStyle, minHeight: '80px' }}
+                            value={formData.contentFr}
+                            onChange={e => setFormData({ ...formData, contentFr: e.target.value })}
                             required
                         />
                     </div>
@@ -123,24 +121,6 @@ export default function CreateProject() {
                     </div>
                 </div>
 
-                <div>
-                    <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>LEGACY IMAGE URL (OPTIONAL)</label>
-                    <input
-                        style={inputStyle}
-                        value={formData.imageUrl}
-                        onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-                    />
-                </div>
-
-                <div>
-                    <label style={{ display: 'block', color: '#888', marginBottom: '0.5rem', fontSize: '0.8rem' }}>EXTERNAL LINK</label>
-                    <input
-                        style={inputStyle}
-                        value={formData.link}
-                        onChange={e => setFormData({ ...formData, link: e.target.value })}
-                    />
-                </div>
-
                 <div style={{ marginTop: '2rem' }}>
                     <h3 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '0.9rem', letterSpacing: '2px' }}>MODULAR CONTENT BLOCKS</h3>
                     <BlockEditor
@@ -162,7 +142,7 @@ export default function CreateProject() {
                         marginTop: '1rem'
                     }}
                 >
-                    {loading ? 'DEPLOYING...' : 'DEPLOY PROJECT'}
+                    {loading ? 'PUBLISHING...' : 'PUBLISH ARTICLE'}
                 </button>
             </form>
         </div>
