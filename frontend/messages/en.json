@@ -1,0 +1,21 @@
+{
+    "HomePage": {
+        "title": "Level Up Your Game",
+        "description": "Building immersive worlds and robust backends.",
+        "projects": "View Projects",
+        "articles": "Read Articles"
+    },
+    "Navigation": {
+        "home": "Home",
+        "projects": "Projects",
+        "articles": "Articles"
+    },
+    "Projects": {
+        "title": "My Projects",
+        "viewProject": "View Project"
+    },
+    "Articles": {
+        "title": "Latest Articles",
+        "readMore": "Read more"
+    }
+}

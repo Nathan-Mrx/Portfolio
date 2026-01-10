@@ -1,0 +1,21 @@
+{
+    "HomePage": {
+        "title": "Passez au niveau supérieur",
+        "description": "Création de mondes immersifs et de backends robustes.",
+        "projects": "Voir les projets",
+        "articles": "Lire les articles"
+    },
+    "Navigation": {
+        "home": "Accueil",
+        "projects": "Projets",
+        "articles": "Articles"
+    },
+    "Projects": {
+        "title": "Mes Projets",
+        "viewProject": "Voir le projet"
+    },
+    "Articles": {
+        "title": "Derniers Articles",
+        "readMore": "Lire la suite"
+    }
+}

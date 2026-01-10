@@ -1,0 +1,47 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 4rem;
+}
+
+.hero {
+  text-align: center;
+  max-width: 800px;
+}
+
+.title {
+  font-size: 4rem;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+.highlight {
+  color: var(--primary);
+  text-shadow: 0 0 20px var(--primary-glow);
+}
+
+.description {
+  font-size: 1.5rem;
+  color: #888;
+  margin-bottom: 3rem;
+}
+
+.ctas {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* We should probably move these btn styles to globals.css or a component later */
+.btn {
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Since I used global classes in the JS, I'll add a quick local override or rely on globals if I added them there. 
+   Wait, I didn't add .btn to globals. Let's add them here for now or fix globals later. */
