@@ -23,9 +23,9 @@ export default async function Articles({ params }) {
                 {articles.length === 0 ? (
                     <p>No articles found.</p>
                 ) : (
-                    articles.map((article) => (
+                    articles.map((article, index) => (
                         <Link
-                            key={article.id}
+                            key={article.id || index}
                             href={`/articles/${article.id}`}
                             className="glass article-card"
                             style={{

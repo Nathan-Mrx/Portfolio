@@ -33,114 +33,29 @@ export default function ArticleDetail({ params: paramsPromise }) {
 
     return (
         <div className="article-page">
-            <Link href="/articles" className="back-link">
-                <ChevronLeft size={20} /> Back to Archive
-            </Link>
+            <div className="content-container">
+                <Link href="/articles" className="back-link">
+                    <ChevronLeft size={20} /> Back to Archive
+                </Link>
 
-            {article.coverUrl && (
-                <div className="cover-container">
-                    <img src={article.coverUrl} alt={title} className="cover-image" />
-                    <div className="cover-overlay"></div>
-                </div>
-            )}
+                {article.coverUrl && (
+                    <div className="hero-image-container">
+                        <img src={article.coverUrl} alt={title} className="hero-image" />
+                    </div>
+                )}
 
-            <article className="content-container">
-                <header className="article-header">
-                    <span className="date">[{new Date(article.publishedAt).toLocaleDateString()}]</span>
-                    <h1>{title}</h1>
-                    {summary && <p className="summary">{summary}</p>}
-                </header>
+                <article>
+                    <header className="article-header">
+                        <span className="id-tag">[{new Date(article.publishedAt).toLocaleDateString()}]</span>
+                        <h1 style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>{title}</h1>
+                        {summary && <div className="summary-section">{summary}</div>}
+                    </header>
 
-                <div className="blocks-wrapper">
-                    <BlockRenderer blocks={article.contentBlocks} />
-                </div>
-            </article>
-
-            <style jsx>{`
-                .article-page {
-                    min-height: 100vh;
-                    background: #000;
-                    color: #fff;
-                    padding-bottom: 5rem;
-                }
-                .loading, .error {
-                    height: 100vh;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-family: monospace;
-                    color: var(--primary);
-                }
-                .back-link {
-                    position: fixed;
-                    top: 2rem;
-                    left: 2rem;
-                    z-index: 100;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    color: #888;
-                    font-size: 0.9rem;
-                    text-decoration: none;
-                    transition: color 0.2s;
-                    background: rgba(0,0,0,0.5);
-                    backdrop-filter: blur(10px);
-                    padding: 0.5rem 1rem;
-                    border-radius: 20px;
-                    border: 1px solid #222;
-                }
-                .back-link:hover {
-                    color: var(--primary);
-                }
-                .cover-container {
-                    width: 100%;
-                    height: 60vh;
-                    position: relative;
-                    overflow: hidden;
-                }
-                .cover-image {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-                .cover-overlay {
-                    position: absolute;
-                    inset: 0;
-                    background: linear-gradient(to bottom, transparent, #000);
-                }
-                .content-container {
-                    max-width: 800px;
-                    margin: -5rem auto 0;
-                    position: relative;
-                    z-index: 10;
-                    padding: 0 2rem;
-                }
-                .article-header {
-                    margin-bottom: 4rem;
-                }
-                .date {
-                    font-family: monospace;
-                    color: var(--primary);
-                    font-size: 0.9rem;
-                    letter-spacing: 2px;
-                }
-                h1 {
-                    font-size: 3.5rem;
-                    margin: 1rem 0;
-                    line-height: 1.1;
-                }
-                .summary {
-                    font-size: 1.25rem;
-                    color: #888;
-                    line-height: 1.6;
-                    border-left: 2px solid #333;
-                    padding-left: 1.5rem;
-                    margin-top: 2rem;
-                }
-                .blocks-wrapper {
-                    margin-top: 4rem;
-                }
-            `}</style>
+                    <div className="blocks-wrapper">
+                        <BlockRenderer blocks={article.contentBlocks} />
+                    </div>
+                </article>
+            </div>
         </div>
     );
 }

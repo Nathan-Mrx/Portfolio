@@ -37,9 +37,9 @@ export default async function Projects({ params }) {
                 {projects.length === 0 ? (
                     <p>No projects found.</p>
                 ) : (
-                    projects.map((project) => (
+                    projects.map((project, index) => (
                         <Link
-                            key={project.id}
+                            key={project.id || index}
                             href={`/projects/${project.id}`}
                             className="glass project-card"
                             style={{

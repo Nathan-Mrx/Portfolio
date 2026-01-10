@@ -40,53 +40,6 @@ export default function BlockRenderer({ blocks }) {
                 return null;
             })}
 
-            <style jsx>{`
-                .block-renderer {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 2.5rem;
-                }
-                .text-block {
-                    line-height: 1.8;
-                    font-size: 1.1rem;
-                    color: #ddd;
-                }
-                .text-block :global(h1) { color: #fff; margin-top: 2rem; }
-                .text-block :global(h2) { color: #fff; margin-top: 1.8rem; font-size: 1.5rem; }
-                .text-block :global(h3) { color: var(--primary); margin-top: 1.5rem; font-size: 1.2rem; }
-                .text-block :global(p) { margin-bottom: 1.2rem; }
-                .text-block :global(ul), .text-block :global(ol) { margin-bottom: 1.2rem; padding-left: 1.5rem; }
-                .text-block :global(a) { color: var(--primary); text-decoration: underline; }
-                
-                .image-block {
-                    margin: 0;
-                    width: 100%;
-                }
-                .content-image {
-                    width: 100%;
-                    height: auto;
-                    border-radius: 12px;
-                    border: 1px solid #333;
-                }
-                .image-caption {
-                    margin-top: 1rem;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 0.2rem;
-                    font-size: 0.9rem;
-                    border-left: 2px solid var(--primary);
-                    padding-left: 1rem;
-                }
-                .image-title {
-                    color: #fff;
-                    font-weight: 500;
-                }
-                .image-source {
-                    color: #666;
-                    font-style: italic;
-                    font-size: 0.8rem;
-                }
-            `}</style>
         </div>
     );
 }
