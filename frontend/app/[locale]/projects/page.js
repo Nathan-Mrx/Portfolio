@@ -29,6 +29,14 @@ export default async function Projects({ params }) {
     const { Link } = await import('@/i18n/routing');
     const t = await getTranslations('Projects');
 
+    const getFullUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const origin = baseUrl.replace(/\/api$/, '');
+        return `${origin}${path}`;
+    };
+
     return (
         <div className="container" style={{ paddingTop: '4rem' }}>
             <h1 style={{ marginBottom: '2rem', fontSize: '2.5rem' }}>{t('title')}</h1>
@@ -56,7 +64,7 @@ export default async function Projects({ params }) {
                             <div style={{ height: '220px', width: '100%', overflow: 'hidden', background: '#111' }}>
                                 {(project.thumbnailUrl || project.imageUrl) ? (
                                     <img
-                                        src={project.thumbnailUrl || project.imageUrl}
+                                        src={getFullUrl(project.thumbnailUrl || project.imageUrl)}
                                         alt={locale === 'fr' ? project.titleFr : project.titleEn}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
                                         className="card-image"

@@ -31,6 +31,14 @@ export default function ProjectDetail({ params: paramsPromise }) {
     const title = locale === 'fr' ? project.titleFr : project.titleEn;
     const description = locale === 'fr' ? project.descriptionFr : project.descriptionEn;
 
+    const getFullUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const origin = baseUrl.replace(/\/api$/, '');
+        return `${origin}${path}`;
+    };
+
     return (
         <div className="project-page">
             <div className="content-container">
@@ -40,7 +48,7 @@ export default function ProjectDetail({ params: paramsPromise }) {
 
                 {project.coverUrl && (
                     <div className="hero-image-container">
-                        <img src={project.coverUrl} alt={title} className="hero-image" />
+                        <img src={getFullUrl(project.coverUrl)} alt={title} className="hero-image" />
                     </div>
                 )}
 
@@ -90,7 +98,7 @@ export default function ProjectDetail({ params: paramsPromise }) {
                                         <Link key={relProj.id} href={`/projects/${relProj.id}`} className="related-card glass">
                                             <div className="related-card-img">
                                                 {relProj.thumbnailUrl ? (
-                                                    <img src={relProj.thumbnailUrl} alt={relProj.titleEn} />
+                                                    <img src={getFullUrl(relProj.thumbnailUrl)} alt={relProj.titleEn} />
                                                 ) : (
                                                     <div className="placeholder-icon"><Briefcase size={24} /></div>
                                                 )}

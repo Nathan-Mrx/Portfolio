@@ -5,6 +5,14 @@ import { useLocale } from 'next-intl';
 export default function BlockRenderer({ blocks }) {
     const locale = useLocale();
 
+    const getFullUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const origin = baseUrl.replace(/\/api$/, '');
+        return `${origin}${path}`;
+    };
+
     if (!blocks || !Array.isArray(blocks)) return null;
 
     return (
@@ -26,7 +34,7 @@ export default function BlockRenderer({ blocks }) {
                     const source = locale === 'fr' ? block.sourceFr : block.sourceEn;
                     return (
                         <figure key={index} className="image-block">
-                            <img src={block.url} alt={title} className="content-image" />
+                            <img src={getFullUrl(block.url)} alt={title} className="content-image" />
                             {(title || source) && (
                                 <figcaption className="image-caption">
                                     {title && <span className="image-title">{title}</span>}

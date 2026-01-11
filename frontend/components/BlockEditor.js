@@ -73,6 +73,14 @@ export default function BlockEditor({ blocks, onChange }) {
         }
     };
 
+    const getFullUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const origin = baseUrl.replace(/\/api$/, '');
+        return `${origin}${path}`;
+    };
+
     return (
         <div className="block-editor">
             <div className="blocks-container">
@@ -143,7 +151,7 @@ export default function BlockEditor({ blocks, onChange }) {
                                 </div>
                                 {block.url && (
                                     <div className="image-preview">
-                                        <img src={block.url} alt="Preview" />
+                                        <img src={getFullUrl(block.url)} alt="Preview" />
                                     </div>
                                 )}
                                 <div className="bilingual-grid">

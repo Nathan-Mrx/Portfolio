@@ -15,6 +15,14 @@ export default async function Articles({ params }) {
     const { Link } = await import('@/i18n/routing');
     const t = await getTranslations('Articles');
 
+    const getFullUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const origin = baseUrl.replace(/\/api$/, '');
+        return `${origin}${path}`;
+    };
+
     return (
         <div className="container" style={{ paddingTop: '4rem' }}>
             <h1 style={{ marginBottom: '2rem', fontSize: '2.5rem' }}>{t('title')}</h1>
@@ -42,7 +50,7 @@ export default async function Articles({ params }) {
                             {article.thumbnailUrl && (
                                 <div style={{ width: '200px', height: '140px', flexShrink: 0, overflow: 'hidden', borderRadius: '8px' }}>
                                     <img
-                                        src={article.thumbnailUrl}
+                                        src={getFullUrl(article.thumbnailUrl)}
                                         alt=""
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />

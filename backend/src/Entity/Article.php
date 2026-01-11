@@ -173,6 +173,27 @@ class Article
         return $this->thumbnailName;
     }
 
+    #[Groups(['article:read'])]
+    public function getThumbnailUrl(): ?string
+    {
+        if (!$this->thumbnailName) {
+            return null;
+        }
+        return '/uploads/media/' . $this->thumbnailName;
+    }
+
+    #[Groups(['article:write'])]
+    public function setThumbnailUrl(?string $thumbnailUrl): static
+    {
+        if ($thumbnailUrl) {
+            $this->thumbnailName = basename($thumbnailUrl);
+        } else {
+            $this->thumbnailName = null;
+        }
+
+        return $this;
+    }
+
     public function setThumbnailName(?string $thumbnailName): static
     {
         $this->thumbnailName = $thumbnailName;
@@ -199,6 +220,27 @@ class Article
     public function getCoverName(): ?string
     {
         return $this->coverName;
+    }
+
+    #[Groups(['article:read'])]
+    public function getCoverUrl(): ?string
+    {
+        if (!$this->coverName) {
+            return null;
+        }
+        return '/uploads/media/' . $this->coverName;
+    }
+
+    #[Groups(['article:write'])]
+    public function setCoverUrl(?string $coverUrl): static
+    {
+        if ($coverUrl) {
+            $this->coverName = basename($coverUrl);
+        } else {
+            $this->coverName = null;
+        }
+
+        return $this;
     }
 
     public function setCoverName(?string $coverName): static

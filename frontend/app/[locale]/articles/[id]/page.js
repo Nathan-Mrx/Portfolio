@@ -28,6 +28,14 @@ export default function ArticleDetail({ params: paramsPromise }) {
     if (loading) return <div className="loading">Initializing System Data...</div>;
     if (!article) return <div className="error">Article not found.</div>;
 
+    const getFullUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const origin = baseUrl.replace(/\/api$/, '');
+        return `${origin}${path}`;
+    };
+
     const title = locale === 'fr' ? article.titleFr : article.titleEn;
     const summary = locale === 'fr' ? article.contentFr : article.contentEn;
 
@@ -40,7 +48,7 @@ export default function ArticleDetail({ params: paramsPromise }) {
 
                 {article.coverUrl && (
                     <div className="hero-image-container">
-                        <img src={article.coverUrl} alt={title} className="hero-image" />
+                        <img src={getFullUrl(article.coverUrl)} alt={title} className="hero-image" />
                     </div>
                 )}
 
@@ -64,11 +72,11 @@ export default function ArticleDetail({ params: paramsPromise }) {
                         <div className="related-content">
                             <h2 className="related-title">Related Projects</h2>
                             <div className="related-grid">
-                                {article.linkedProjects.map(project => (
-                                    <Link key={project.id} href={`/projects/${project.id}`} className="related-card glass">
+                                {article.linkedProjects.map((project, index) => (
+                                    <Link key={`${project.id}-${index}`} href={`/projects/${project.id}`} className="related-card glass">
                                         <div className="related-card-img">
                                             {project.thumbnailUrl ? (
-                                                <img src={project.thumbnailUrl} alt={project.titleEn} />
+                                                <img src={getFullUrl(project.thumbnailUrl)} alt={project.titleEn} />
                                             ) : (
                                                 <div className="placeholder-icon"><Briefcase size={24} /></div>
                                             )}

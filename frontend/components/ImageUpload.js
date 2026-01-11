@@ -53,12 +53,21 @@ export default function ImageUpload({ label, value, onChange, id }) {
         onChange(null);
     };
 
+    const getFullUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        // Remove /api from the end of baseUrl if it exists, as the media path usually starts from root or /uploads
+        const origin = baseUrl.replace(/\/api$/, '');
+        return `${origin}${path}`;
+    };
+
     return (
         <div className="image-upload">
             <label htmlFor={id}>{label}</label>
             {preview ? (
                 <div className="image-preview">
-                    <img src={preview} alt="Preview" />
+                    <img src={getFullUrl(preview)} alt="Preview" />
                     <button type="button" onClick={handleRemove} className="remove-btn">
                         <X size={16} />
                     </button>
