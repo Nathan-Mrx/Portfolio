@@ -106,10 +106,10 @@ export default function AdminDashboard({ params }) {
     };
 
     const Pagination = ({ page, total, setPage, loading }) => {
-        const totalPages = Math.ceil(total / 8);
+        const totalPages = Math.max(1, Math.ceil(total / 8));
         const [jumpValue, setJumpValue] = useState('');
 
-        if (totalPages <= 1) return null;
+        if (total === 0 && !loading) return null;
 
         let start = Math.max(1, page - 2);
         let end = Math.min(totalPages, page + 2);

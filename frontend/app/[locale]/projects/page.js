@@ -5,6 +5,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import OptimizedImage from '@/components/OptimizedImage';
+import Pagination from '@/components/Pagination';
 import styles from './projects.module.css';
 
 export default function Projects({ params: paramsPromise }) {
@@ -14,19 +16,25 @@ export default function Projects({ params: paramsPromise }) {
 
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const itemsPerPage = 8;
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/projects`)
+        setLoading(true);
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/projects?page=${currentPage}&order[createdAt]=desc`)
             .then(res => res.json())
             .then(data => {
                 setProjects(data['hydra:member'] || data['member'] || []);
+                setTotalItems(data['hydra:totalItems'] || data['totalItems'] || 0);
                 setLoading(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             })
             .catch(err => {
                 console.error('Failed to fetch projects:', err);
                 setLoading(false);
             });
-    }, []);
+    }, [currentPage]);
 
     const getFullUrl = (path) => {
         if (!path) return null;
@@ -97,17 +105,11 @@ export default function Projects({ params: paramsPromise }) {
                                     className={styles.projectCard}
                                 >
                                     <div className={styles.imageContainer}>
-                                        {(project.thumbnailUrl || project.imageUrl) ? (
-                                            <img
-                                                src={getFullUrl(project.thumbnailUrl || project.imageUrl)}
-                                                alt={locale === 'fr' ? project.titleFr : project.titleEn}
-                                                className={styles.cardImage}
-                                            />
-                                        ) : (
-                                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>
-                                                [NO_MEDIA]
-                                            </div>
-                                        )}
+                                        <OptimizedImage
+                                            src={project.thumbnailUrl || project.coverUrl}
+                                            alt={locale === 'fr' ? project.titleFr : project.titleEn}
+                                            preset="PROJECT_CARD"
+                                        />
                                     </div>
                                     <div className={styles.cardContent}>
                                         <h2 className={styles.projectTitle}>
@@ -125,6 +127,13 @@ export default function Projects({ params: paramsPromise }) {
                         ))
                     )}
                 </motion.div>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </div>
     );

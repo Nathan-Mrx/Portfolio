@@ -1,9 +1,10 @@
 'use client';
 
 import { useLocale } from 'next-intl';
+import OptimizedImage from '@/components/OptimizedImage';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { ReactCompareSlider, ReactCompareSliderImage } from 'react-compare-slider';
+import { ReactCompareSlider } from 'react-compare-slider';
 
 export default function BlockRenderer({ blocks }) {
     const locale = useLocale();
@@ -43,8 +44,12 @@ export default function BlockRenderer({ blocks }) {
                     const title = locale === 'fr' ? block.titleFr : block.titleEn;
                     const source = locale === 'fr' ? block.sourceFr : block.sourceEn;
                     return (
-                        <figure key={index} className="image-block">
-                            <img src={getFullUrl(block.url)} alt={title} className="content-image" />
+                        <figure key={index} className="image-block" style={{ position: 'relative' }}>
+                            <OptimizedImage
+                                src={block.url}
+                                alt={title}
+                                preset="CONTENT"
+                            />
                             {(title || source) && (
                                 <figcaption className="image-caption">
                                     {title && <span className="image-title">{title}</span>}
@@ -99,25 +104,25 @@ export default function BlockRenderer({ blocks }) {
                 }
 
                 if (block.type === 'comparison') {
-                    const labelBefore = locale === 'fr' ? block.labelBeforeFr : block.labelBeforeEn;
-                    const labelAfter = locale === 'fr' ? block.labelAfterFr : block.labelAfterEn;
+                    const labelLeft = locale === 'fr' ? block.labelLeftFr || block.labelBeforeFr : block.labelLeftEn || block.labelBeforeEn;
+                    const labelRight = locale === 'fr' ? block.labelRightFr || block.labelAfterFr : block.labelRightEn || block.labelAfterEn;
                     return (
                         <div key={index} className="comparison-block">
                             <div className="comparison-container glass">
                                 <ReactCompareSlider
                                     itemOne={
-                                        <div style={{ position: 'relative', height: '100%' }}>
-                                            <ReactCompareSliderImage src={getFullUrl(block.urlBefore)} alt="Before" />
-                                            {labelBefore && <div className="comparison-label before">{labelBefore}</div>}
+                                        <div style={{ position: 'relative', width: '100%' }}>
+                                            <OptimizedImage src={block.urlBefore} alt="Before" preset="COVER" />
+                                            {labelLeft && <div className="comparison-label before" style={{ zIndex: 10 }}>{labelLeft}</div>}
                                         </div>
                                     }
                                     itemTwo={
-                                        <div style={{ position: 'relative', height: '100%' }}>
-                                            <ReactCompareSliderImage src={getFullUrl(block.urlAfter)} alt="After" />
-                                            {labelAfter && <div className="comparison-label after">{labelAfter}</div>}
+                                        <div style={{ position: 'relative', width: '100%' }}>
+                                            <OptimizedImage src={block.urlAfter} alt="After" preset="COVER" />
+                                            {labelRight && <div className="comparison-label after" style={{ zIndex: 10 }}>{labelRight}</div>}
                                         </div>
                                     }
-                                    style={{ width: '100%', height: 'auto', maxHeight: '600px', borderRadius: '12px' }}
+                                    style={{ width: '100%', height: 'auto' }}
                                 />
                             </div>
                         </div>

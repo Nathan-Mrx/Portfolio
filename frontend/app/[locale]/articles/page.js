@@ -5,6 +5,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { motion } from 'framer-motion';
 import { Calendar } from 'lucide-react';
+import OptimizedImage from '@/components/OptimizedImage';
+import Pagination from '@/components/Pagination';
 import styles from './articles.module.css';
 
 export default function Articles({ params: paramsPromise }) {
@@ -14,19 +16,25 @@ export default function Articles({ params: paramsPromise }) {
 
     const [articles, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const itemsPerPage = 8;
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/articles`)
+        setLoading(true);
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/articles?page=${currentPage}&order[publishedAt]=desc`)
             .then(res => res.json())
             .then(data => {
                 setArticles(data['hydra:member'] || data['member'] || []);
+                setTotalItems(data['hydra:totalItems'] || data['totalItems'] || 0);
                 setLoading(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             })
             .catch(err => {
                 console.error('Failed to fetch articles:', err);
                 setLoading(false);
             });
-    }, []);
+    }, [currentPage]);
 
     const getFullUrl = (path) => {
         if (!path) return null;
@@ -98,10 +106,10 @@ export default function Articles({ params: paramsPromise }) {
                                 >
                                     {article.thumbnailUrl && (
                                         <div className={styles.imageContainer}>
-                                            <img
-                                                src={getFullUrl(article.thumbnailUrl)}
-                                                alt=""
-                                                className={styles.cardImage}
+                                            <OptimizedImage
+                                                src={article.thumbnailUrl}
+                                                alt={locale === 'fr' ? article.titleFr : article.titleEn}
+                                                preset="THUMBNAIL"
                                             />
                                         </div>
                                     )}
@@ -126,6 +134,13 @@ export default function Articles({ params: paramsPromise }) {
                         ))
                     )}
                 </motion.div>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </div>
     );

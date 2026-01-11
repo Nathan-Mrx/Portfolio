@@ -20,6 +20,9 @@ export default function CyberBackground() {
     const dotsX = useTransform(mouseX, [0, 1000], [10, -10]);
     const dotsY = useTransform(mouseY, [0, 1000], [10, -10]);
 
+    const spotlightX = useTransform(lightX, (val) => `${val}px`);
+    const spotlightY = useTransform(lightY, (val) => `${val}px`);
+
     useEffect(() => {
         // Initial center position
         mouseX.set(typeof window !== 'undefined' ? window.innerWidth / 2 : 0);
@@ -34,10 +37,9 @@ export default function CyberBackground() {
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, [mouseX, mouseY]);
 
-    if (isAdmin) return null;
-
+    // Use conditional rendering ONLY in the return, not early return
     return (
-        <div className={styles.cyberBackground}>
+        <div className={styles.cyberBackground} style={{ display: isAdmin ? 'none' : 'block' }}>
             {/* Background Dots with Parallax */}
             <motion.div
                 className={styles.backgroundDots}
@@ -48,8 +50,8 @@ export default function CyberBackground() {
             <motion.div
                 className={styles.spotlight}
                 style={{
-                    '--x': useTransform(lightX, (val) => `${val}px`),
-                    '--y': useTransform(lightY, (val) => `${val}px`)
+                    '--x': spotlightX,
+                    '--y': spotlightY
                 }}
             />
         </div>

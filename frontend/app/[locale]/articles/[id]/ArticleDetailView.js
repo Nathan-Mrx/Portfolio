@@ -2,6 +2,7 @@
 
 import { useLocale } from 'next-intl';
 import BlockRenderer from '@/components/BlockRenderer';
+import OptimizedImage from '@/components/OptimizedImage';
 import { ChevronLeft, Calendar, Clock } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { motion } from 'framer-motion';
@@ -41,7 +42,12 @@ export default function ArticleDetailView({ article }) {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
                     >
-                        <img src={getFullUrl(article.coverUrl)} alt={title} className={styles.heroImage} />
+                        <OptimizedImage
+                            src={article.coverUrl}
+                            alt={title}
+                            preset="COVER"
+                            priority
+                        />
                     </motion.div>
                 )}
 
@@ -79,7 +85,14 @@ export default function ArticleDetailView({ article }) {
                                     <Link key={`${project.id}-${index}`} href={`/projects/${project.id}`}
                                         style={{ display: 'flex', gap: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', textDecoration: 'none', color: 'inherit', border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.3s' }}>
                                         {project.thumbnailUrl && (
-                                            <img src={getFullUrl(project.thumbnailUrl)} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px' }} />
+                                            <div style={{ width: '80px', height: '80px', flexShrink: 0 }}>
+                                                <OptimizedImage
+                                                    src={project.thumbnailUrl}
+                                                    alt=""
+                                                    preset="THUMBNAIL"
+                                                    className="rounded-mini"
+                                                />
+                                            </div>
                                         )}
                                         <div>
                                             <h4 style={{ margin: '0' }}>{locale === 'fr' ? project.titleFr : project.titleEn}</h4>

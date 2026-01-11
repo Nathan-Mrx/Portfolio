@@ -2,6 +2,7 @@
 
 import { useLocale } from 'next-intl';
 import BlockRenderer from '@/components/BlockRenderer';
+import OptimizedImage from '@/components/OptimizedImage';
 import { ChevronLeft, ExternalLink, ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { motion } from 'framer-motion';
@@ -41,7 +42,12 @@ export default function ProjectDetailView({ project }) {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
                     >
-                        <img src={getFullUrl(project.coverUrl)} alt={title} className={styles.heroImage} />
+                        <OptimizedImage
+                            src={project.coverUrl}
+                            alt={title}
+                            preset="COVER"
+                            priority
+                        />
                     </motion.div>
                 )}
 

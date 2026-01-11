@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { motion } from 'framer-motion';
+import OptimizedImage from '@/components/OptimizedImage';
 import { Terminal, Cpu, Database, Globe, Mail, Phone, MapPin } from 'lucide-react';
 
 export default function AboutPage({ params: paramsPromise }) {
@@ -59,7 +60,12 @@ export default function AboutPage({ params: paramsPromise }) {
                             </div>
                             <div className="image-container">
                                 {profile?.profileImageUrl ? (
-                                    <img src={profile.profileImageUrl} alt="Nathan" className="profile-img" />
+                                    <OptimizedImage
+                                        src={profile.profileImageUrl}
+                                        alt="Nathan"
+                                        preset="PROFILE"
+                                        priority
+                                    />
                                 ) : (
                                     <div className="profile-placeholder">
                                         <Terminal size={64} />
