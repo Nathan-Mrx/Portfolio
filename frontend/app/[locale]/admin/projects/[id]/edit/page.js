@@ -20,6 +20,8 @@ export default function EditProject({ params }) {
         titleFr: '',
         descriptionEn: '',
         descriptionFr: '',
+        resumeHighlightsEn: '',
+        resumeHighlightsFr: '',
         thumbnailUrl: null,
         coverUrl: null,
         link: '',
@@ -56,6 +58,8 @@ export default function EditProject({ params }) {
                 titleFr: data.titleFr || '',
                 descriptionEn: data.descriptionEn || '',
                 descriptionFr: data.descriptionFr || '',
+                resumeHighlightsEn: data.resumeHighlightsEn || '',
+                resumeHighlightsFr: data.resumeHighlightsFr || '',
                 imageUrl: data.imageUrl || '',
                 thumbnailUrl: data.thumbnailUrl || '',
                 coverUrl: data.coverUrl || '',
@@ -205,6 +209,30 @@ export default function EditProject({ params }) {
                         image={formData.coverUrl || formData.thumbnailUrl}
                         type="project"
                     />
+                </div>
+
+                <div className="form-section hud-glass">
+                    <h2 className="hud-title"><span className="caret">{'>'}</span> RESUME_HIGHLIGHTS</h2>
+                    <div className="bilingual-grid">
+                        <div className="field-group">
+                            <label>Highlights (EN) - Bullet points per line</label>
+                            <textarea
+                                className="admin-input"
+                                rows="5"
+                                value={formData.resumeHighlightsEn}
+                                onChange={(e) => setFormData({ ...formData, resumeHighlightsEn: e.target.value })}
+                            />
+                        </div>
+                        <div className="field-group">
+                            <label>Highlights (FR) - Points par ligne</label>
+                            <textarea
+                                className="admin-input"
+                                rows="5"
+                                value={formData.resumeHighlightsFr}
+                                onChange={(e) => setFormData({ ...formData, resumeHighlightsFr: e.target.value })}
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="form-section hud-glass">

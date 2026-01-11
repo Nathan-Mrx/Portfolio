@@ -25,7 +25,8 @@ export default function ProfileEditor({ data, onSave }) {
             tools: [],
             programmingLanguages: [],
             languages: [],
-            featuredProjectIds: []
+            languages: [],
+            featuredProjects: [] // Changed from featuredProjectIds to array of objects
         }
     });
 
@@ -46,7 +47,10 @@ export default function ProfileEditor({ data, onSave }) {
                     tools: data.resumeData?.tools || [],
                     programmingLanguages: data.resumeData?.programmingLanguages || [],
                     languages: data.resumeData?.languages || [],
-                    featuredProjectIds: data.resumeData?.featuredProjectIds || []
+                    languages: data.resumeData?.languages || [],
+                    // Migration/Init for featuredProjects
+                    featuredProjects: data.resumeData?.featuredProjects ||
+                        (data.resumeData?.featuredProjectIds || []).map(id => ({ id, highlightsEn: '', highlightsFr: '' }))
                 }
             }));
         }
@@ -170,19 +174,42 @@ export default function ProfileEditor({ data, onSave }) {
         setFormData({ ...formData, resumeData: newResume });
     };
 
-    const toggleProject = (projectId) => {
-        const currentSelected = formData.resumeData.featuredProjectIds || [];
-        const isSelected = currentSelected.includes(projectId);
+    const toggleProject = (project) => {
+        const currentSelected = formData.resumeData.featuredProjects || [];
+        const existingIndex = currentSelected.findIndex(p => p.id === project.id);
 
-        const newIds = isSelected
-            ? currentSelected.filter(id => id !== projectId)
-            : [...currentSelected, projectId];
+        let newSelected;
+        if (existingIndex >= 0) {
+            // Remove
+            newSelected = currentSelected.filter((_, i) => i !== existingIndex);
+        } else {
+            // Add with default highlights from entity if available
+            newSelected = [...currentSelected, {
+                id: project.id,
+                highlightsEn: project.resumeHighlightsEn || '',
+                highlightsFr: project.resumeHighlightsFr || ''
+            }];
+        }
 
         setFormData({
             ...formData,
             resumeData: {
                 ...formData.resumeData,
-                featuredProjectIds: newIds
+                featuredProjects: newSelected
+            }
+        });
+    };
+
+    const updateProjectHighlights = (id, field, value) => {
+        const newSelected = (formData.resumeData.featuredProjects || []).map(p => {
+            if (p.id === id) return { ...p, [field]: value };
+            return p;
+        });
+        setFormData({
+            ...formData,
+            resumeData: {
+                ...formData.resumeData,
+                featuredProjects: newSelected
             }
         });
     };
@@ -361,12 +388,12 @@ export default function ProfileEditor({ data, onSave }) {
                                     p.titleFr.toLowerCase().includes(projectSearch.toLowerCase())
                                 )
                                 .map(project => {
-                                    const isSelected = (formData.resumeData.featuredProjectIds || []).includes(project.id);
+                                    const isSelected = (formData.resumeData.featuredProjects || []).some(p => p.id === project.id);
                                     return (
                                         <div
                                             key={project.id}
                                             className={`picker-item ${isSelected ? 'selected' : ''}`}
-                                            onClick={() => toggleProject(project.id)}
+                                            onClick={() => toggleProject(project)}
                                         >
                                             <div className="item-check">
                                                 {isSelected ? <Check size={12} /> : <Plus size={12} />}
@@ -378,9 +405,47 @@ export default function ProfileEditor({ data, onSave }) {
                         </div>
                     </div>
 
+                    <div className="selected-projects-list" style={{ marginTop: '2rem' }}>
+                        <h3 className="hud-title" style={{ fontSize: '0.7rem' }}>EDIT_PROJECT_HIGHLIGHTS</h3>
+                        {(formData.resumeData.featuredProjects || []).map((fp, i) => {
+                            const project = availableProjects.find(p => p.id === fp.id);
+                            if (!project) return null;
+                            return (
+                                <div key={fp.id} className="resume-item hud-glass" style={{ marginBottom: '1rem' }}>
+                                    <div className="item-row" style={{ justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                        <span className="item-name" style={{ color: 'var(--primary)', fontWeight: '900' }}>{project.titleEn}</span>
+                                        <button type="button" onClick={() => toggleProject(project)} className="del-btn-icon"><Trash2 size={14} /></button>
+                                    </div>
+                                    <div className="item-row">
+                                        <div className="field-col">
+                                            <label>Resume Highlights (EN)</label>
+                                            <textarea
+                                                className="bio-textarea"
+                                                rows={3}
+                                                placeholder="• Point 1..."
+                                                value={fp.highlightsEn || ''}
+                                                onChange={(e) => updateProjectHighlights(fp.id, 'highlightsEn', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="field-col">
+                                            <label>Resume Highlights (FR)</label>
+                                            <textarea
+                                                className="bio-textarea"
+                                                rows={3}
+                                                placeholder="• Point 1..."
+                                                value={fp.highlightsFr || ''}
+                                                onChange={(e) => updateProjectHighlights(fp.id, 'highlightsFr', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
                     <div className="selected-status">
                         <Gamepad2 size={14} />
-                        <span>SELECTED: {(formData.resumeData.featuredProjectIds || []).length} / 6 RECOMMENDED</span>
+                        <span>SELECTED: {(formData.resumeData.featuredProjects || []).length} / 6 RECOMMENDED</span>
                     </div>
                 </div>
 

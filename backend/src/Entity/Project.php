@@ -52,6 +52,14 @@ class Project
     #[Groups(['project:read', 'project:write', 'article:read'])]
     private ?string $descriptionFr = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['project:read', 'project:write', 'article:read'])]
+    private ?string $resumeHighlightsEn = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['project:read', 'project:write', 'article:read'])]
+    private ?string $resumeHighlightsFr = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['project:read', 'project:write'])]
     private ?string $link = null;
@@ -148,6 +156,28 @@ class Project
     {
         $this->descriptionFr = $descriptionFr;
 
+        return $this;
+    }
+
+    public function getResumeHighlightsEn(): ?string
+    {
+        return $this->resumeHighlightsEn;
+    }
+
+    public function setResumeHighlightsEn(?string $resumeHighlightsEn): self
+    {
+        $this->resumeHighlightsEn = $resumeHighlightsEn;
+        return $this;
+    }
+
+    public function getResumeHighlightsFr(): ?string
+    {
+        return $this->resumeHighlightsFr;
+    }
+
+    public function setResumeHighlightsFr(?string $resumeHighlightsFr): self
+    {
+        $this->resumeHighlightsFr = $resumeHighlightsFr;
         return $this;
     }
 

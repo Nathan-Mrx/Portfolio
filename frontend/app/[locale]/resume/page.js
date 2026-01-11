@@ -43,14 +43,26 @@ export default function ResumePage({ params: paramsPromise }) {
 
     const resume = profile?.resumeData || { experience: [], education: [], skills: [], tools: [], programmingLanguages: [], languages: [], featuredProjectIds: [] };
 
-    // Filter and sort projects based on selected IDs, or fallback to first 5
-    const selectedIds = resume.featuredProjectIds || [];
-    const displayedProjects = selectedIds.length > 0
-        ? selectedIds.map(id => projects.find(p => String(p.id) === String(id))).filter(Boolean)
-        : projects.slice(0, 5);
+    // Filter and sort projects based on selected IDs/Objects
+    const selectedProjectsData = resume.featuredProjects ||
+        (resume.featuredProjectIds || []).map(id => ({ id, highlightsEn: '', highlightsFr: '' }));
+
+    const displayedProjects = selectedProjectsData.length > 0
+        ? selectedProjectsData.map(item => {
+            const project = projects.find(p => String(p.id) === String(typeof item === 'object' ? item.id : item));
+            if (!project) return null;
+            return {
+                ...project,
+                // Merge custom overrides
+                customHighlightsEn: item.highlightsEn,
+                customHighlightsFr: item.highlightsFr
+            };
+        }).filter(Boolean)
+        : projects.slice(0, 5).map(p => ({ ...p, customHighlightsEn: '', customHighlightsFr: '' }));
 
     const jobTitle = profile ? ((locale === 'fr' ? profile.jobTitleFr : profile.jobTitleEn) || 'DEVELOPER') : 'DEVELOPER';
     const location = profile?.location || 'CHICOUTIMI, QC';
+
 
     // Data structures from resumeData, with fallback to legacy filtering if new arrays are empty
     const techStack = (resume.skills && resume.skills.length > 0)
@@ -233,19 +245,35 @@ export default function ResumePage({ params: paramsPromise }) {
                         <section className="main-section">
                             <h3 className="section-title"><Gamepad2 size={16} /> {t('experience')}</h3>
                             <div className="timeline">
-                                {displayedProjects.map((project, i) => (
-                                    <div key={i} className="timeline-item">
-                                        <div className="item-header">
-                                            <div className="item-identity">
-                                                <h4 className="item-role">{locale === 'fr' ? project.titleFr : project.titleEn}</h4>
-                                                {project.link && <span className="item-company">{project.link.replace(/^https?:\/\//, '')}</span>}
+                                {displayedProjects.map((project, i) => {
+                                    const highlights = locale === 'fr'
+                                        ? (project.customHighlightsFr || project.resumeHighlightsFr)
+                                        : (project.customHighlightsEn || project.resumeHighlightsEn);
+
+                                    const description = locale === 'fr' ? project.descriptionFr : project.descriptionEn;
+
+                                    return (
+                                        <div key={i} className="timeline-item">
+                                            <div className="item-header">
+                                                <div className="item-identity">
+                                                    <h4 className="item-role">{locale === 'fr' ? project.titleFr : project.titleEn}</h4>
+                                                    {project.link && <span className="item-company">{project.link.replace(/^https?:\/\//, '')}</span>}
+                                                </div>
+                                            </div>
+                                            <div className="item-description">
+                                                {highlights ? (
+                                                    <ul className="edu-bullets" style={{ marginTop: '0.25rem' }}>
+                                                        {highlights.split('\n').map((point, idx) => (
+                                                            point.trim() && <li key={idx}>{(point.replace(/^[•\-\*]\s*/, ''))}</li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                    <p>{description}</p>
+                                                )}
                                             </div>
                                         </div>
-                                        <div className="item-description">
-                                            <p>{locale === 'fr' ? project.descriptionFr : project.descriptionEn}</p>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </section>
 
@@ -547,20 +575,20 @@ export default function ResumePage({ params: paramsPromise }) {
                         background: #f8f8f8 !important;
                         border-right: 1pt solid #eee !important;
                         border-left: none !important;
-                        padding: 0.5in 0.5in !important; /* Increased padding to act as margin */
+                        padding: 0.5in 0.5in !important; /* Looser padding */
                         display: flex !important;
                         flex-direction: column !important;
-                        gap: 1.25rem !important;
+                        gap: 1.5rem !important; /* Maximized gap for sidebar */
                     }
                     .resume-main { 
                         order: 2 !important; 
-                        padding: 0.5in 0.5in 0.5in 0.5in !important; /* Uniform 0.5in padding */
+                        padding: 0.4in 0.4in 0.4in 0.4in !important; /* kept tight */
                         color: black !important; 
-                        gap: 1.5rem !important;
+                        gap: 1.15rem !important; /* kept tight */
                     }
-                    .sidebar-section { margin-bottom: 0.4rem; }
+                    .sidebar-section { margin-bottom: 0.5rem; }
                     .links-table { width: 100% !important; border-collapse: collapse !important; }
-                    .links-table td { border: none !important; padding: 5pt 0 !important; vertical-align: middle !important; color: black !important; }
+                    .links-table td { border: none !important; padding: 6pt 0 !important; vertical-align: middle !important; color: black !important; } /* Looser cells */
                     .icon-cell { width: 16pt !important; }
                     .links-table .text-cell { padding-left: 8pt !important; }
                     .links-table a { color: black !important; text-decoration: none !important; font-size: 8.5pt !important; }
@@ -573,34 +601,34 @@ export default function ResumePage({ params: paramsPromise }) {
                         height: 13pt !important;
                         flex-shrink: 0 !important;
                     }
-                    .resume-header-mobile { display: block !important; margin-bottom: 1.25rem; border-bottom: 1pt solid #eee; padding-bottom: 0.75rem; }
-                    .resume-header-mobile .name { font-size: 1.3rem !important; margin-bottom: 0.35rem; }
+                    .resume-header-mobile { display: block !important; margin-bottom: 1.5rem; border-bottom: 1pt solid #eee; padding-bottom: 0.75rem; }
+                    .resume-header-mobile .name { font-size: 1.4rem !important; margin-bottom: 0.35rem; }
                     .no-mobile { display: block !important; }
-                    .resume-header { margin-bottom: 1.75rem !important; }
-                    .resume-header .title { font-size: 1.1rem !important; color: black !important; opacity: 1 !important; border-bottom: 2pt solid black; padding-bottom: 0.35rem; margin-top: 0 !important; }
+                    .resume-header { margin-bottom: 1.25rem !important; }
+                    .resume-header .title { font-size: 1rem !important; color: black !important; opacity: 1 !important; border-bottom: 2pt solid black; padding-bottom: 0.25rem; margin-top: 0 !important; }
                     .neon-text { color: black !important; text-shadow: none !important; }
                     .no-print { display: none !important; }
                     .only-print { display: block !important; }
                     tr.only-print { display: table-row !important; }
                     span.only-print { display: inline !important; }
-                    .sidebar-title { color: #666 !important; border-bottom: 0.5pt solid #eee; padding-bottom: 3pt; font-size: 0.65rem !important; margin-bottom: 0.6rem !important; }
-                    .section-title { color: black !important; border-bottom: 1pt solid #000 !important; font-size: 0.75rem !important; padding-bottom: 0.35rem !important; margin-bottom: 0.75rem !important; }
-                    .main-section { gap: 1rem !important; }
-                    .timeline { gap: 1.25rem !important; }
-                    .item-header { margin-bottom: 0.35rem !important; }
-                    .item-role { color: black !important; font-weight: 900; font-size: 0.95rem !important; }
-                    .timeline-item.small .item-role { font-size: 0.9rem !important; }
-                    .item-company { color: #444 !important; font-size: 0.8rem !important; }
-                    .item-period { background: none !important; color: #666 !important; border: 0.5pt solid #ddd; font-size: 0.7rem !important; padding: 0.15rem 0.5rem !important; }
-                    .bio-text, .item-description { color: #333 !important; font-size: 0.85rem !important; line-height: 1.5 !important; }
-                    .edu-bullets { margin: 0.25rem 0 0 0.5rem !important; }
-                    .edu-bullets li { font-size: 0.8rem !important; color: #444 !important; padding-left: 0.75rem !important; }
+                    .sidebar-title { color: #666 !important; border-bottom: 0.5pt solid #eee; padding-bottom: 3pt; font-size: 0.7rem !important; margin-bottom: 0.75rem !important; } /* Looser title */
+                    .section-title { color: black !important; border-bottom: 1pt solid #000 !important; font-size: 0.75rem !important; padding-bottom: 0.25rem !important; margin-bottom: 0.5rem !important; }
+                    .main-section { gap: 0.85rem !important; }
+                    .timeline { gap: 1rem !important; }
+                    .item-header { margin-bottom: 0.2rem !important; }
+                    .item-role { color: black !important; font-weight: 900; font-size: 0.9rem !important; }
+                    .timeline-item.small .item-role { font-size: 0.85rem !important; }
+                    .item-company { color: #444 !important; font-size: 0.75rem !important; }
+                    .item-period { background: none !important; color: #666 !important; border: 0.5pt solid #ddd; font-size: 0.65rem !important; padding: 0.1rem 0.4rem !important; }
+                    .bio-text, .item-description { color: #333 !important; font-size: 0.8rem !important; line-height: 1.4 !important; }
+                    .edu-bullets { margin: 0.1rem 0 0 0.5rem !important; }
+                    .edu-bullets li { font-size: 0.75rem !important; color: #444 !important; padding-left: 0.75rem !important; margin-bottom: 1pt !important; }
                     .edu-bullets li::before { color: #000 !important; }
-                    .portfolio-qr-section { margin-top: 0.75rem !important; }
-                    .portfolio-qr-content { gap: 1.25rem !important; }
-                    .portfolio-link-big { color: black !important; font-size: 1rem !important; margin-top: 0.35rem !important; }
+                    .portfolio-qr-section { margin-top: 0.5rem !important; }
+                    .portfolio-qr-content { gap: 1rem !important; }
+                    .portfolio-link-big { color: black !important; font-size: 0.9rem !important; margin-top: 0.25rem !important; }
                     .qr-container { border: none !important; }
-                    .qr-code { width: 70px !important; height: 70px !important; }
+                    .qr-code { width: 60px !important; height: 60px !important; }
                     .level-dots { 
                         display: flex !important; 
                         gap: 4px !important; 
@@ -620,12 +648,12 @@ export default function ResumePage({ params: paramsPromise }) {
                         background-color: #000 !important; 
                         border: 1px solid #000 !important;
                     }
-                    .skill-tag { border: 0.5pt solid #eee; background: none !important; color: #444 !important; margin-bottom: 1.5pt; padding: 0.15rem 0.5rem !important; font-size: 0.65rem !important; }
+                    .skill-tag { border: 0.5pt solid #eee; background: none !important; color: #444 !important; margin-bottom: 2pt; padding: 0.15rem 0.5rem !important; font-size: 0.65rem !important; } /* Looser tags */
                     .skill-mini-bar { 
                         border: none !important; 
                         background-color: #eee !important; 
-                        height: 1.5pt !important; 
-                        margin-top: 1.5pt !important;
+                        height: 2pt !important; 
+                        margin-top: 2pt !important;
                     }
                     .skill-mini-bar .fill { 
                         background-color: #000 !important; 
