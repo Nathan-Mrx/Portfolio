@@ -14,8 +14,8 @@ export default function CyberBackground() {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
 
-    const lightX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-    const lightY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+    const lightX = useSpring(mouseX, { stiffness: 150, damping: 30 });
+    const lightY = useSpring(mouseY, { stiffness: 150, damping: 30 });
 
     const dotsX = useTransform(mouseX, [0, 1000], [10, -10]);
     const dotsY = useTransform(mouseY, [0, 1000], [10, -10]);
