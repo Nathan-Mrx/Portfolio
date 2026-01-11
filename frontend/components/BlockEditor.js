@@ -1,16 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash, MoveUp, MoveDown, Type, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
+import { Plus, Trash, MoveUp, MoveDown, Type, Image as ImageIcon, Upload, Loader2, Code, Video, Layout } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 
 export default function BlockEditor({ blocks, onChange }) {
     const [uploadingIndex, setUploadingIndex] = useState(null);
+    const [uploadingField, setUploadingField] = useState(null); // Track which field in comparison block is uploading
 
     const addBlock = (type) => {
-        const newBlock = type === 'text'
-            ? { type: 'text', contentEn: '', contentFr: '' }
-            : { type: 'image', url: '', titleEn: '', titleFr: '', sourceEn: '', sourceFr: '' };
+        let newBlock;
+        if (type === 'text') newBlock = { type: 'text', contentEn: '', contentFr: '' };
+        else if (type === 'image') newBlock = { type: 'image', url: '', titleEn: '', titleFr: '', sourceEn: '', sourceFr: '' };
+        else if (type === 'code') newBlock = { type: 'code', code: '', language: 'javascript', titleEn: '', titleFr: '' };
+        else if (type === 'video') newBlock = { type: 'video', url: '', titleEn: '', titleFr: '' };
+        else if (type === 'comparison') newBlock = { type: 'comparison', urlBefore: '', urlAfter: '', labelBeforeEn: 'Before', labelBeforeFr: 'Avant', labelAfterEn: 'After', labelAfterFr: 'Après' };
+
         onChange([...blocks, newBlock]);
     };
 
@@ -34,10 +39,11 @@ export default function BlockEditor({ blocks, onChange }) {
         onChange(newBlocks);
     };
 
-    const handleImageUpload = async (index, file) => {
+    const handleImageUpload = async (index, file, field = 'url') => {
         if (!file) return;
 
         setUploadingIndex(index);
+        setUploadingField(field);
         const formData = new FormData();
         formData.append('file', file);
 
@@ -59,7 +65,7 @@ export default function BlockEditor({ blocks, onChange }) {
             }
 
             const data = await res.json();
-            updateBlock(index, { url: data.contentUrl });
+            updateBlock(index, { [field]: data.contentUrl });
         } catch (error) {
             if (error.message.includes('401')) {
                 alert('Session expired. Please log in again.');
@@ -70,6 +76,7 @@ export default function BlockEditor({ blocks, onChange }) {
             alert(`Failed to upload image: ${error.message}`);
         } finally {
             setUploadingIndex(null);
+            setUploadingField(null);
         }
     };
 
@@ -81,6 +88,10 @@ export default function BlockEditor({ blocks, onChange }) {
         return `${origin}${path}`;
     };
 
+    const languages = [
+        'javascript', 'typescript', 'python', 'cpp', 'csharp', 'css', 'html', 'json', 'bash', 'sql'
+    ];
+
     return (
         <div className="block-editor">
             <div className="blocks-container">
@@ -89,13 +100,13 @@ export default function BlockEditor({ blocks, onChange }) {
                         <div className="block-header">
                             <span className="block-badge">{block.type.toUpperCase()}</span>
                             <div className="block-actions">
-                                <button onClick={() => moveBlock(index, -1)} disabled={index === 0}><MoveUp size={16} /></button>
-                                <button onClick={() => moveBlock(index, 1)} disabled={index === blocks.length - 1}><MoveDown size={16} /></button>
-                                <button onClick={() => removeBlock(index)} className="delete"><Trash size={16} /></button>
+                                <button type="button" onClick={() => moveBlock(index, -1)} disabled={index === 0}><MoveUp size={16} /></button>
+                                <button type="button" onClick={() => moveBlock(index, 1)} disabled={index === blocks.length - 1}><MoveDown size={16} /></button>
+                                <button type="button" onClick={() => removeBlock(index)} className="delete"><Trash size={16} /></button>
                             </div>
                         </div>
 
-                        {block.type === 'text' ? (
+                        {block.type === 'text' && (
                             <div className="bilingual-grid">
                                 <div className="field-group">
                                     <label>English Content</label>
@@ -114,7 +125,9 @@ export default function BlockEditor({ blocks, onChange }) {
                                     />
                                 </div>
                             </div>
-                        ) : (
+                        )}
+
+                        {block.type === 'image' && (
                             <div className="image-block-content">
                                 <div className="upload-section">
                                     <div className="url-input-wrapper">
@@ -190,16 +203,164 @@ export default function BlockEditor({ blocks, onChange }) {
                                 </div>
                             </div>
                         )}
+
+                        {block.type === 'code' && (
+                            <div className="block-content code-block-edit">
+                                <div className="field-row">
+                                    <div className="field-group" style={{ flex: 1 }}>
+                                        <label>Code Snippet</label>
+                                        <textarea
+                                            className="admin-input code-textarea"
+                                            style={{ fontFamily: 'monospace', height: '200px' }}
+                                            value={block.code}
+                                            onChange={(e) => updateBlock(index, { code: e.target.value })}
+                                            placeholder="Paste your code here..."
+                                        />
+                                    </div>
+                                    <div className="field-group" style={{ width: '200px' }}>
+                                        <label>Language</label>
+                                        <select
+                                            className="admin-input"
+                                            value={block.language}
+                                            onChange={(e) => updateBlock(index, { language: e.target.value })}
+                                        >
+                                            {languages.map(lang => (
+                                                <option key={lang} value={lang}>{lang.toUpperCase()}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="bilingual-grid mt-2">
+                                    <div className="field-group">
+                                        <label>Caption (EN)</label>
+                                        <input
+                                            type="text"
+                                            className="admin-input"
+                                            value={block.titleEn}
+                                            onChange={(e) => updateBlock(index, { titleEn: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="field-group">
+                                        <label>Caption (FR)</label>
+                                        <input
+                                            type="text"
+                                            className="admin-input"
+                                            value={block.titleFr}
+                                            onChange={(e) => updateBlock(index, { titleFr: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {block.type === 'video' && (
+                            <div className="block-content">
+                                <div className="field-group">
+                                    <label>YouTube Video URL / ID</label>
+                                    <input
+                                        type="text"
+                                        className="admin-input"
+                                        value={block.url}
+                                        onChange={(e) => updateBlock(index, { url: e.target.value })}
+                                        placeholder="https://www.youtube.com/watch?v=... or ID"
+                                    />
+                                </div>
+                                <div className="bilingual-grid mt-2">
+                                    <div className="field-group">
+                                        <label>Title (EN)</label>
+                                        <input
+                                            type="text"
+                                            className="admin-input"
+                                            value={block.titleEn}
+                                            onChange={(e) => updateBlock(index, { titleEn: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="field-group">
+                                        <label>Title (FR)</label>
+                                        <input
+                                            type="text"
+                                            className="admin-input"
+                                            value={block.titleFr}
+                                            onChange={(e) => updateBlock(index, { titleFr: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {block.type === 'comparison' && (
+                            <div className="block-content comparison-block-edit">
+                                <div className="bilingual-grid">
+                                    <div className="comparison-side">
+                                        <label>BEFORE Image (Left)</label>
+                                        <div className="upload-section">
+                                            <input
+                                                type="text"
+                                                className="admin-input"
+                                                value={block.urlBefore}
+                                                onChange={(e) => updateBlock(index, { urlBefore: e.target.value })}
+                                                placeholder="URL..."
+                                            />
+                                            <label className="upload-trigger">
+                                                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(index, e.target.files[0], 'urlBefore')} style={{ display: 'none' }} />
+                                                {uploadingIndex === index && uploadingField === 'urlBefore' ? <Loader2 className="animate-spin" size={16} /> : <Upload size={16} />}
+                                            </label>
+                                        </div>
+                                        {block.urlBefore && <div className="image-preview small"><img src={getFullUrl(block.urlBefore)} alt="" /></div>}
+                                        <div className="mt-2">
+                                            <label>Label (EN / FR)</label>
+                                            <div className="flex-gap">
+                                                <input type="text" className="admin-input" placeholder="EN" value={block.labelBeforeEn} onChange={(e) => updateBlock(index, { labelBeforeEn: e.target.value })} />
+                                                <input type="text" className="admin-input" placeholder="FR" value={block.labelBeforeFr} onChange={(e) => updateBlock(index, { labelBeforeFr: e.target.value })} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="comparison-side">
+                                        <label>AFTER Image (Right)</label>
+                                        <div className="upload-section">
+                                            <input
+                                                type="text"
+                                                className="admin-input"
+                                                value={block.urlAfter}
+                                                onChange={(e) => updateBlock(index, { urlAfter: e.target.value })}
+                                                placeholder="URL..."
+                                            />
+                                            <label className="upload-trigger">
+                                                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(index, e.target.files[0], 'urlAfter')} style={{ display: 'none' }} />
+                                                {uploadingIndex === index && uploadingField === 'urlAfter' ? <Loader2 className="animate-spin" size={16} /> : <Upload size={16} />}
+                                            </label>
+                                        </div>
+                                        {block.urlAfter && <div className="image-preview small"><img src={getFullUrl(block.urlAfter)} alt="" /></div>}
+                                        <div className="mt-2">
+                                            <label>Label (EN / FR)</label>
+                                            <div className="flex-gap">
+                                                <input type="text" className="admin-input" placeholder="EN" value={block.labelAfterEn} onChange={(e) => updateBlock(index, { labelAfterEn: e.target.value })} />
+                                                <input type="text" className="admin-input" placeholder="FR" value={block.labelAfterFr} onChange={(e) => updateBlock(index, { labelAfterFr: e.target.value })} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
 
             <div className="editor-controls">
                 <button type="button" onClick={() => addBlock('text')} className="control-btn">
-                    <Type size={18} /> Add Text Block
+                    <Type size={18} /> Add Text
                 </button>
                 <button type="button" onClick={() => addBlock('image')} className="control-btn">
-                    <ImageIcon size={18} /> Add Image Block
+                    <ImageIcon size={18} /> Add Image
+                </button>
+                <button type="button" onClick={() => addBlock('code')} className="control-btn">
+                    <Code size={18} /> Add Code
+                </button>
+                <button type="button" onClick={() => addBlock('video')} className="control-btn">
+                    <Video size={18} /> Add Video
+                </button>
+                <button type="button" onClick={() => addBlock('comparison')} className="control-btn">
+                    <Layout size={18} /> Comparison
                 </button>
             </div>
 
@@ -349,6 +510,24 @@ export default function BlockEditor({ blocks, onChange }) {
                     border-color: var(--primary);
                     color: var(--primary);
                     background: rgba(0, 255, 102, 0.02);
+                }
+                .flex-gap {
+                    display: flex;
+                    gap: 0.5rem;
+                }
+                .image-preview.small {
+                    max-height: 120px;
+                    margin-top: 0.5rem;
+                }
+                .field-row {
+                    display: flex;
+                    gap: 1rem;
+                    margin-bottom: 1rem;
+                }
+                .code-textarea {
+                    min-height: 200px;
+                    line-height: 1.4;
+                    font-family: 'JetBrains Mono', monospace !important;
                 }
             `}</style>
         </div>
