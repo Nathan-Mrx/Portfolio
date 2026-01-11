@@ -13,19 +13,31 @@ export default function ProfileEditor({ data, onSave }) {
         jobTitleEn: '',
         jobTitleFr: '',
         availabilityStatus: '',
+        location: '',
         profileImageUrl: '',
         resumeData: {
             experience: [],
             education: [],
-            skills: []
-        },
-        ...data
+            skills: [],
+            languages: []
+        }
     });
 
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        if (data) setFormData({ ...formData, ...data });
+        if (data) {
+            setFormData(prev => ({
+                ...prev,
+                ...data,
+                resumeData: {
+                    experience: data.resumeData?.experience || [],
+                    education: data.resumeData?.education || [],
+                    skills: data.resumeData?.skills || [],
+                    languages: data.resumeData?.languages || []
+                }
+            }));
+        }
     }, [data]);
 
     const handleSubmit = async (e) => {
@@ -35,7 +47,7 @@ export default function ProfileEditor({ data, onSave }) {
         setSaving(false);
     };
 
-    // Experience Handlers
+    // Experience Handlers ... (rest of old handlers)
     const addExperience = () => {
         const newResume = { ...formData.resumeData };
         newResume.experience = [...(newResume.experience || []), { company: '', role: '', period: '', description: '' }];
@@ -92,6 +104,25 @@ export default function ProfileEditor({ data, onSave }) {
         setFormData({ ...formData, resumeData: newResume });
     };
 
+    // Language Handlers
+    const addLanguage = () => {
+        const newResume = { ...formData.resumeData };
+        newResume.languages = [...(newResume.languages || []), { name: '', level: 5, status: 'PROFESSIONAL' }];
+        setFormData({ ...formData, resumeData: newResume });
+    };
+
+    const updateLanguage = (index, field, value) => {
+        const newResume = { ...formData.resumeData };
+        newResume.languages[index][field] = value;
+        setFormData({ ...formData, resumeData: newResume });
+    };
+
+    const removeLanguage = (index) => {
+        const newResume = { ...formData.resumeData };
+        newResume.languages = newResume.languages.filter((_, i) => i !== index);
+        setFormData({ ...formData, resumeData: newResume });
+    };
+
     return (
         <form onSubmit={handleSubmit} className="profile-editor-form">
             <div className="editor-grid">
@@ -135,7 +166,16 @@ export default function ProfileEditor({ data, onSave }) {
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             />
                         </div>
-                        <div className="field-group full">
+                        <div className="field-group">
+                            <label>Location (City, Country/Prov)</label>
+                            <input
+                                type="text"
+                                className="admin-input"
+                                value={formData.location}
+                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                            />
+                        </div>
+                        <div className="field-group">
                             <label>Availability Status (e.g. "Available for Freelance")</label>
                             <input
                                 type="text"
@@ -238,6 +278,31 @@ export default function ProfileEditor({ data, onSave }) {
                                     <input type="range" min="0" max="100" value={skill.level} onChange={e => updateSkill(i, 'level', parseInt(e.target.value))} />
                                     <span className="skill-val">{skill.level}%</span>
                                     <button type="button" onClick={() => removeSkill(i)} className="del-btn-icon"><Trash2 size={14} /></button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="editor-section hud-glass">
+                    <div className="section-header-btn">
+                        <h2 className="hud-title"><span className="caret">{'>'}</span> LANGUAGES_NODE</h2>
+                        <button type="button" onClick={addLanguage} className="add-btn"><Plus size={14} /> ADD</button>
+                    </div>
+                    <div className="resume-list">
+                        {(formData.resumeData.languages || []).map((lang, i) => (
+                            <div key={i} className="resume-item hud-glass">
+                                <div className="item-row">
+                                    <input placeholder="Language (e.g. FRENCH)" value={lang.name} onChange={e => updateLanguage(i, 'name', e.target.value)} />
+                                    <input placeholder="Status (e.g. NATIVE)" value={lang.status} onChange={e => updateLanguage(i, 'status', e.target.value)} />
+                                </div>
+                                <div className="item-row">
+                                    <div className="skill-ctrl">
+                                        <label style={{ fontSize: '0.6rem', color: '#555' }}>LEVEL (1-5)</label>
+                                        <input type="range" min="1" max="5" value={lang.level} onChange={e => updateLanguage(i, 'level', parseInt(e.target.value))} />
+                                        <span className="skill-val">{lang.level}/5</span>
+                                    </div>
+                                    <button type="button" onClick={() => removeLanguage(i)} className="del-btn"><Trash2 size={14} /></button>
                                 </div>
                             </div>
                         ))}

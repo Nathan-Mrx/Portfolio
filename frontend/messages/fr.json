@@ -52,7 +52,10 @@
         "summary": "RÉSUMÉ_PROFIL",
         "experience": "EXPÉRIENCE",
         "education": "ÉDUCATION",
-        "skills": "COMPÉTENCES_TECH",
+        "techSkills": "COMPÉTENCES_TECHNIQUES",
+        "techStack": "CORE_TECHNOLOGIES",
+        "tools": "OUTILS_&_WORKFLOW",
+        "languages": "NOEUDS_LINGUISTIQUES",
         "links": "LIENS",
         "scan": "SCANNER_POUR_NOEUD_VIRTUEL",
         "footer": "EXPORT_SYSTÈME_CENTRAL // CV_OS_NATHAN_MRX"

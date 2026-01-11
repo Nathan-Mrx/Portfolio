@@ -54,6 +54,9 @@ export default function CyberBackground() {
                     '--y': spotlightY
                 }}
             />
+
+            {/* Film Grain (Dithering) */}
+            <div className={styles.grain} />
         </div>
     );
 }

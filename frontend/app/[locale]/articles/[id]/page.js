@@ -2,7 +2,7 @@ import ArticleDetailView from './ArticleDetailView';
 
 async function getArticle(id) {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/articles/${id}`, {
-        next: { revalidate: 3600 } // Cache for 1 hour
+        cache: 'no-store'
     });
     if (!res.ok) return null;
     return res.json();

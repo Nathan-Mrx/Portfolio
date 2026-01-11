@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity]
 #[ApiResource(
@@ -67,6 +67,10 @@ class Profile
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['profile:read', 'profile:write'])]
     private ?string $profileImageUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['profile:read', 'profile:write'])]
+    private ?string $location = null;
 
     public function getId(): ?int
     {
@@ -169,6 +173,17 @@ class Profile
     public function setProfileImageUrl(?string $profileImageUrl): self
     {
         $this->profileImageUrl = $profileImageUrl;
+        return $this;
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function setLocation(?string $location): self
+    {
+        $this->location = $location;
         return $this;
     }
 }

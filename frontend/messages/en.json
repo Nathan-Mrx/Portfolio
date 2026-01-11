@@ -52,7 +52,10 @@
         "summary": "PROFILE_SUMMARY",
         "experience": "EXPERIENCE",
         "education": "EDUCATION",
-        "skills": "TECH_SKILLS",
+        "techSkills": "TECHNICAL_PROFICIENCY",
+        "techStack": "CORE_TECHNOLOGIES",
+        "tools": "TOOLS_&_WORKFLOW",
+        "languages": "LINGUISTIC_NODES",
         "links": "LINKS",
         "scan": "SCAN_FOR_VIRTUAL_NODE",
         "footer": "CORE_SYSTEM_EXPORT // NATHAN_MRX_OS_RESUME"

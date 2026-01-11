@@ -36,19 +36,19 @@ class Project
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['project:read', 'project:write'])]
+    #[Groups(['project:read', 'project:write', 'article:read'])]
     private ?string $titleEn = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['project:read', 'project:write'])]
+    #[Groups(['project:read', 'project:write', 'article:read'])]
     private ?string $titleFr = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['project:read', 'project:write'])]
+    #[Groups(['project:read', 'project:write', 'article:read'])]
     private ?string $descriptionEn = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['project:read', 'project:write'])]
+    #[Groups(['project:read', 'project:write', 'article:read'])]
     private ?string $descriptionFr = null;
 
     #[ORM\Column(length: 255, nullable: true)]

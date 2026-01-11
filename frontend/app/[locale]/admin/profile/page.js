@@ -20,8 +20,8 @@ export default function AdminProfile({ params: paramsPromise }) {
 
     const fetchProfile = async () => {
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
-            const res = await fetch(`${apiUrl}/profiles`);
+            const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace(/\/$/, '');
+            const res = await fetch(`${apiUrl}/profiles`, { cache: 'no-store' });
             if (!res.ok) throw new Error('Failed to fetch profile');
 
             const data = await res.json();
@@ -48,10 +48,18 @@ export default function AdminProfile({ params: paramsPromise }) {
     const handleSave = async (formData) => {
         try {
             const token = localStorage.getItem('token');
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+            const apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace(/\/$/, '');
 
-            const method = profile.id ? 'PUT' : 'POST';
-            const url = profile.id ? `${apiUrl}/profiles/${profile.id}` : `${apiUrl}/profiles`;
+            // Robust ID extraction
+            let profileId = profile?.id;
+            if (!profileId && profile?.['@id']) {
+                profileId = profile['@id'].split('/').pop();
+            }
+
+            const method = profileId ? 'PUT' : 'POST';
+            const url = profileId ? `${apiUrl}/profiles/${profileId}` : `${apiUrl}/profiles`;
+
+            console.log(`Saving profile via ${method} to ${url}`);
 
             const headers = {
                 'Content-Type': 'application/ld+json',
@@ -68,6 +76,7 @@ export default function AdminProfile({ params: paramsPromise }) {
                 jobTitleEn: clean(formData.jobTitleEn),
                 jobTitleFr: clean(formData.jobTitleFr),
                 availabilityStatus: clean(formData.availabilityStatus),
+                location: clean(formData.location),
                 profileImageUrl: clean(formData.profileImageUrl),
                 resumeData: formData.resumeData
             };
@@ -80,25 +89,21 @@ export default function AdminProfile({ params: paramsPromise }) {
 
             if (!res.ok) {
                 const text = await res.text();
-                console.error('Save Error (Status):', res.status, res.statusText);
-                console.error('Save Error (Body):', text);
-
+                let errorMessage = `Server Error: ${res.status}`;
                 try {
-                    const errData = JSON.parse(text);
-                    const violation = errData.violations?.[0]?.message
-                        || errData['hydra:description']
-                        || `Error ${res.status}: ${res.statusText}`;
-                    throw new Error(violation);
+                    const errorJson = JSON.parse(text);
+                    errorMessage = errorJson['hydra:description'] || errorJson.detail || errorJson.message || errorMessage;
                 } catch (e) {
-                    throw new Error(`Server Error: ${res.status} ${res.statusText} (Look at console for details)`);
+                    errorMessage = text || errorMessage;
                 }
+                throw new Error(errorMessage);
             }
 
             const updated = await res.json();
             setProfile(updated);
             alert('PROFILE_UPDATED : SUCCESS');
         } catch (err) {
-            console.error(err);
+            console.error('SAVE_ERROR:', err);
             alert(`UPDATE_ERROR : ${err.message}`);
         }
     };
