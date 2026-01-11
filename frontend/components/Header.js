@@ -1,11 +1,13 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Menu, X, Terminal, Command, Github, Linkedin, Gamepad2 } from 'lucide-react';
 
 export default function Header({ locale }) {
+    const t = useTranslations('Navigation');
     const pathname = usePathname();
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,17 +26,17 @@ export default function Header({ locale }) {
     };
 
     const navItems = [
-        { label: 'Home', path: '/' },
-        { label: 'Projects', path: '/projects' },
-        { label: 'Articles', path: '/articles' },
-        { label: 'Resume', path: '/resume' },
-        { label: 'About', path: '/about' },
-        { label: 'Contact', path: '/contact' },
+        { key: 'home', path: '/' },
+        { key: 'projects', path: '/projects' },
+        { key: 'articles', path: '/articles' },
+        { key: 'resume', path: '/resume' },
+        { key: 'about', path: '/about' },
+        { key: 'contact', path: '/contact' },
     ];
 
     const socialLinks = [
         { icon: <Github size={20} />, url: 'https://github.com/Nathan-Mrx', label: 'GitHub', color: '#fff' },
-        { icon: <Linkedin size={20} />, url: 'https://linkedin.com/in/nathan-mrx', label: 'LinkedIn', color: '#0077b5' },
+        { icon: <Linkedin size={20} />, url: 'https://linkedin.com/in/nathan-merieux', label: 'LinkedIn', color: '#0077b5' },
         { icon: <Gamepad2 size={20} />, url: 'https://nathan-mrx.itch.io', label: 'itch.io', color: '#fa5c5c' },
     ];
 
@@ -43,7 +45,7 @@ export default function Header({ locale }) {
             <div className="container header-inner">
                 <Link href="/" className="logo">
                     <Terminal size={24} className="logo-icon" />
-                    <span className="logo-text">DEV_PORTFOLIO</span>
+                    <span className="logo-text">NATHAN_MRX</span>
                 </Link>
 
                 {/* Desktop Nav */}
@@ -55,7 +57,7 @@ export default function Header({ locale }) {
                                 href={item.path}
                                 className={`nav-link ${isActive(item.path) ? 'active' : ''}`}
                             >
-                                <span className="link-text">{item.label}</span>
+                                <span className="link-text">{t(item.key)}</span>
                                 <span className="link-glow"></span>
                             </Link>
                         ))}
@@ -100,7 +102,7 @@ export default function Header({ locale }) {
                                 className={`mobile-link ${isActive(item.path) ? 'active' : ''}`}
                                 onClick={() => setMobileMenuOpen(false)}
                             >
-                                {item.label}
+                                {t(item.key)}
                             </Link>
                         ))}
 

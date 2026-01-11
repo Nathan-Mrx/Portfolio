@@ -50,23 +50,48 @@ export default function AdminProfile({ params: paramsPromise }) {
             const token = localStorage.getItem('token');
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
-            const method = profile.id ? 'PATCH' : 'POST';
+            const method = profile.id ? 'PUT' : 'POST';
             const url = profile.id ? `${apiUrl}/profiles/${profile.id}` : `${apiUrl}/profiles`;
 
             const headers = {
-                'Content-Type': profile.id ? 'application/merge-patch+json' : 'application/json',
+                'Content-Type': 'application/ld+json',
                 'Authorization': `Bearer ${token}`
+            };
+
+            const clean = (val) => (val === '' ? null : val);
+
+            const payload = {
+                aboutEn: clean(formData.aboutEn),
+                aboutFr: clean(formData.aboutFr),
+                email: clean(formData.email),
+                phone: clean(formData.phone),
+                jobTitleEn: clean(formData.jobTitleEn),
+                jobTitleFr: clean(formData.jobTitleFr),
+                availabilityStatus: clean(formData.availabilityStatus),
+                profileImageUrl: clean(formData.profileImageUrl),
+                resumeData: formData.resumeData
             };
 
             const res = await fetch(url, {
                 method,
                 headers,
-                body: JSON.stringify(formData)
+                body: JSON.stringify(payload)
             });
 
             if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData['hydra:description'] || 'Save failed');
+                const text = await res.text();
+                console.error('Save Error (Status):', res.status, res.statusText);
+                console.error('Save Error (Body):', text);
+
+                try {
+                    const errData = JSON.parse(text);
+                    const violation = errData.violations?.[0]?.message
+                        || errData['hydra:description']
+                        || `Error ${res.status}: ${res.statusText}`;
+                    throw new Error(violation);
+                } catch (e) {
+                    throw new Error(`Server Error: ${res.status} ${res.statusText} (Look at console for details)`);
+                }
             }
 
             const updated = await res.json();

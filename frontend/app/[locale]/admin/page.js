@@ -198,7 +198,7 @@ export default function AdminDashboard({ params }) {
                 <h1>ADMIN_CMD : <span className="neon-text">DASHBOARD</span></h1>
                 <div className="quick-actions">
                     <Link href={`/${locale}/admin/profile`} className="cyber-rect-btn primary">
-                        <User size={18} /> <span>SITE_PROFILE</span>
+                        <User size={18} /> <span>ABOUT_EDITOR</span>
                     </Link>
                     <Link href={`/${locale}/admin/projects/create`} className="cyber-rect-btn primary">
                         <Plus size={18} /> <span>CRT_PROJECT</span>

@@ -3,9 +3,13 @@
 import { useState, useEffect, use } from 'react';
 import { Printer, Download, Mail, Phone, ExternalLink, MapPin, Globe, Briefcase, GraduationCap, Code } from 'lucide-react';
 
+import CyberBackground from '@/components/CyberBackground';
+import { useTranslations } from 'next-intl';
+
 export default function ResumePage({ params: paramsPromise }) {
     const params = use(paramsPromise);
     const { locale } = params;
+    const t = useTranslations('Resume');
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -23,7 +27,7 @@ export default function ResumePage({ params: paramsPromise }) {
             });
     }, []);
 
-    if (loading) return <div className="loading-state">DECRYPTING_RESUME_DATA...</div>;
+    if (loading) return <div className="loading-state">{t('loading')}</div>;
 
     const resume = profile?.resumeData || { experience: [], education: [], skills: [] };
     const jobTitle = profile ? (locale === 'fr' ? profile.jobTitleFr : profile.jobTitleEn) : 'Game Developer';
@@ -34,15 +38,16 @@ export default function ResumePage({ params: paramsPromise }) {
 
     return (
         <main className="resume-page">
+            <CyberBackground />
             <div className="container resume-wrapper">
                 {/* PDF/Print Controls (Hidden on Print) */}
                 <div className="resume-controls no-print">
                     <button onClick={handlePrint} className="cyber-btn primary">
-                        <Printer size={18} /> <span>PRINT_RESUME</span>
+                        <Printer size={18} /> <span>{t('print')}</span>
                     </button>
                     <div className="controls-hint">
                         <Info size={14} />
-                        <span>Exports as professional white-background PDF</span>
+                        <span>{t('printHint')}</span>
                     </div>
                 </div>
 
@@ -50,21 +55,21 @@ export default function ResumePage({ params: paramsPromise }) {
                     {/* Header Section */}
                     <header className="resume-header">
                         <div className="header-main">
-                            <h1 className="name">NATHAN <span className="neon-text">MRX</span></h1>
+                            <h1 className="name">NATHAN <span className="neon-text">MERIEUX</span></h1>
                             <h2 className="title">{jobTitle}</h2>
                         </div>
                         <div className="contact-grid">
                             <div className="contact-item">
                                 <Mail size={14} className="neon-text no-print" />
-                                <span>{profile?.email || 'contact@nathan-mrx.dev'}</span>
+                                <span>{profile?.email || 'nathan.merieux@outlook.fr'}</span>
                             </div>
                             <div className="contact-item">
                                 <Globe size={14} className="neon-text no-print" />
-                                <span>nathan-mrx.dev</span>
+                                <span>nathan-mrx.com</span>
                             </div>
                             <div className="contact-item">
                                 <MapPin size={14} className="neon-text no-print" />
-                                <span>Montreal, QC</span>
+                                <span>Chicoutimi, QC</span>
                             </div>
                         </div>
                     </header>
@@ -72,7 +77,7 @@ export default function ResumePage({ params: paramsPromise }) {
                     <div className="resume-body">
                         {/* Summary / About */}
                         <section className="resume-section">
-                            <h3 className="section-title"><span className="caret">{'>'}</span> PROFILE_SUMMARY</h3>
+                            <h3 className="section-title"><span className="caret">{'>'}</span> {t('summary')}</h3>
                             <p className="summary-text">
                                 {locale === 'fr' ? profile?.aboutFr : profile?.aboutEn}
                             </p>
@@ -82,7 +87,7 @@ export default function ResumePage({ params: paramsPromise }) {
                             {/* Experience Section */}
                             <div className="main-col">
                                 <section className="resume-section">
-                                    <h3 className="section-title"><span className="caret">{'>'}</span> EXPERIENCE</h3>
+                                    <h3 className="section-title"><span className="caret">{'>'}</span> {t('experience')}</h3>
                                     <div className="timeline">
                                         {(resume.experience || []).map((exp, i) => (
                                             <div key={i} className="timeline-item">
@@ -99,7 +104,7 @@ export default function ResumePage({ params: paramsPromise }) {
                                 </section>
 
                                 <section className="resume-section">
-                                    <h3 className="section-title"><span className="caret">{'>'}</span> EDUCATION</h3>
+                                    <h3 className="section-title"><span className="caret">{'>'}</span> {t('education')}</h3>
                                     <div className="timeline">
                                         {(resume.education || []).map((edu, i) => (
                                             <div key={i} className="timeline-item">
@@ -118,7 +123,7 @@ export default function ResumePage({ params: paramsPromise }) {
                             {/* Skills Section */}
                             <aside className="side-col">
                                 <section className="resume-section">
-                                    <h3 className="section-title"><span className="caret">{'>'}</span> TECH_SKILLS</h3>
+                                    <h3 className="section-title"><span className="caret">{'>'}</span> {t('skills')}</h3>
                                     <div className="skills-list">
                                         {(resume.skills || []).map((skill, i) => (
                                             <div key={i} className="skill-row">
@@ -135,7 +140,7 @@ export default function ResumePage({ params: paramsPromise }) {
                                 </section>
 
                                 <section className="resume-section no-print">
-                                    <h3 className="section-title"><span className="caret">{'>'}</span> LINKS</h3>
+                                    <h3 className="section-title"><span className="caret">{'>'}</span> {t('links')}</h3>
                                     <div className="links-list">
                                         <div className="link-item"><Globe size={14} /> portfolio</div>
                                         <div className="link-item"><Briefcase size={14} /> linkedin</div>
@@ -150,7 +155,7 @@ export default function ResumePage({ params: paramsPromise }) {
                                             {[...Array(16)].map((_, i) => <span key={i} style={{ opacity: Math.random() }}></span>)}
                                         </div>
                                     </div>
-                                    <span className="tiny-meta">SCAN_FOR_VIRTUAL_NODE</span>
+                                    <span className="tiny-meta">{t('scan')}</span>
                                 </div>
                             </aside>
                         </div>
@@ -158,7 +163,7 @@ export default function ResumePage({ params: paramsPromise }) {
 
                     <footer className="resume-footer no-print">
                         <div className="footer-line"></div>
-                        <span className="footer-meta">CORE_SYSTEM_EXPORT // NATHAN_MRX_OS_RESUME</span>
+                        <span className="footer-meta">{t('footer')}</span>
                     </footer>
                 </div>
             </div>
@@ -167,12 +172,14 @@ export default function ResumePage({ params: paramsPromise }) {
                 .resume-page {
                     padding: 8rem 0 4rem;
                     min-height: 100vh;
-                    background: #080808;
-                    color: #fff;
+                    /* Background handled by CyberBackground */
+                    position: relative;
                 }
                 .resume-wrapper {
                     max-width: 900px;
                     margin: 0 auto;
+                    position: relative;
+                    z-index: 1;
                 }
                 .resume-controls {
                     display: flex;
@@ -200,6 +207,8 @@ export default function ResumePage({ params: paramsPromise }) {
                     background: rgba(15, 15, 15, 0.8);
                     border: 1px solid rgba(255, 255, 255, 0.05);
                     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                    background-size: 20px 20px;
                 }
 
                 .resume-header {

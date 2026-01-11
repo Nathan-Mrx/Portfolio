@@ -8,7 +8,10 @@
     "Navigation": {
         "home": "Accueil",
         "projects": "Projets",
-        "articles": "Articles"
+        "articles": "Articles",
+        "resume": "CV",
+        "about": "À Propos",
+        "contact": "Contact"
     },
     "Projects": {
         "title": "Mes Projets",
@@ -17,5 +20,49 @@
     "Articles": {
         "title": "Derniers Articles",
         "readMore": "Lire la suite"
+    },
+    "Contact": {
+        "tag": "TRANSCEVEUR_ACTIF",
+        "title": "INITIALISER_",
+        "titleHighlight": "TRANSMISSION",
+        "subtitle": "Canal de communication sécurisé pour collaborateurs et recruteurs.",
+        "nameLabel": "IDENTIFIANT_NOM",
+        "namePlaceholder": "UTILISATEUR_INVITÉ",
+        "emailLabel": "ENDPOINT_EMAIL",
+        "emailPlaceholder": "UTILISATEUR@DOMAINE.COM",
+        "messageLabel": "PAYLOAD_DONNÉES",
+        "messagePlaceholder": "TAPEZ_VOTRE_MESSAGE_ICI...",
+        "sendButton": "ENVOI_INTERACTIF",
+        "sending": "TÉLÉVERSEMENT...",
+        "successTitle": "TRANSMISSION_TERMINÉE",
+        "successMessage": "Données routées avec succès vers le terminal de Nathan. Réponse attendue sous peu.",
+        "newReception": "NOUVELLE_RÉCEPTION",
+        "coords": "COORDONNÉES",
+        "directIntel": "INTEL_DIRECT",
+        "geoLoc": "GÉO_LOC",
+        "sysStatus": "STATUT_SYS",
+        "tunnel": "Tunnel chiffré établi...",
+        "latency": "Latence : 24ms",
+        "buffer": "Tampon : VIDE"
+    },
+    "Resume": {
+        "loading": "DÉCRYPTAGE_DONNÉES_CV...",
+        "print": "IMPRIMER_CV",
+        "printHint": "Exportation en PDF professionnel sur fond blanc",
+        "summary": "RÉSUMÉ_PROFIL",
+        "experience": "EXPÉRIENCE",
+        "education": "ÉDUCATION",
+        "skills": "COMPÉTENCES_TECH",
+        "links": "LIENS",
+        "scan": "SCANNER_POUR_NOEUD_VIRTUEL",
+        "footer": "EXPORT_SYSTÈME_CENTRAL // CV_OS_NATHAN_MRX"
+    },
+    "About": {
+        "loading": "CONNEXION_AUX_DONNÉES_UTILISATEUR...",
+        "protocols": "PROTOCOLES_CONNUS",
+        "tag": "BIOGRAPHIE_V1.0.4",
+        "title": "QUI_EST_@",
+        "titleHighlight": "NATHAN_MRX",
+        "titleEnd": "?"
     }
 }

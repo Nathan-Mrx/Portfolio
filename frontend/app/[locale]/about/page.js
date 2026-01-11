@@ -5,9 +5,12 @@ import { motion } from 'framer-motion';
 import OptimizedImage from '@/components/OptimizedImage';
 import { Terminal, Cpu, Database, Globe, Mail, Phone, MapPin } from 'lucide-react';
 
+import { useTranslations } from 'next-intl';
+
 export default function AboutPage({ params: paramsPromise }) {
     const params = use(paramsPromise);
     const { locale } = params;
+    const t = useTranslations('About');
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -25,10 +28,10 @@ export default function AboutPage({ params: paramsPromise }) {
             });
     }, []);
 
-    const aboutText = profile ? (locale === 'fr' ? profile.aboutFr : profile.aboutEn) : 'Loading bio...';
-    const jobTitle = profile ? (locale === 'fr' ? profile.jobTitleFr : profile.jobTitleEn) : 'Developer';
+    const aboutText = profile ? ((locale === 'fr' ? profile.aboutFr : profile.aboutEn) || '') : 'Loading bio...';
+    const jobTitle = profile ? ((locale === 'fr' ? profile.jobTitleFr : profile.jobTitleEn) || 'Developer') : 'Developer';
 
-    if (loading) return <div className="loading-bio">CONNECTING_TO_USER_DATA...</div>;
+    if (loading) return <div className="loading-bio">{t('loading')}</div>;
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -83,7 +86,7 @@ export default function AboutPage({ params: paramsPromise }) {
                         </div>
 
                         <div className="tech-stack hud-glass">
-                            <h3 className="hud-label">KNOWN_PROTOCOLS</h3>
+                            <h3 className="hud-label">{t('protocols')}</h3>
                             <div className="stack-icons">
                                 <div className="stack-item" title="Frontend"><Globe size={24} /></div>
                                 <div className="stack-item" title="Logic"><Cpu size={24} /></div>
@@ -95,8 +98,8 @@ export default function AboutPage({ params: paramsPromise }) {
                     {/* Content Section */}
                     <motion.div className="about-content" variants={itemVariants}>
                         <div className="content-header">
-                            <span className="cyber-tag">BIOGRAPHY_V1.0.4</span>
-                            <h1 className="main-title">WHO_IS_@<span className="neon-text">NATHAN_MRX</span>?</h1>
+                            <span className="cyber-tag">{t('tag')}</span>
+                            <h1 className="main-title">{t('title')}<span className="neon-text">{t('titleHighlight')}</span>{t('titleEnd')}</h1>
                         </div>
 
                         <div className="bio-card hud-glass">
@@ -110,7 +113,7 @@ export default function AboutPage({ params: paramsPromise }) {
                         <div className="contact-quick-list">
                             <div className="contact-node hud-glass">
                                 <Mail size={16} className="neon-text" />
-                                <span>{profile?.email || 'nathan@example.com'}</span>
+                                <span>{profile?.email || 'nathan.merieux@outlook.fr'}</span>
                             </div>
                             {profile?.phone && (
                                 <div className="contact-node hud-glass">
@@ -120,7 +123,7 @@ export default function AboutPage({ params: paramsPromise }) {
                             )}
                             <div className="contact-node hud-glass">
                                 <MapPin size={16} className="neon-text" />
-                                <span>Montreal, QC</span>
+                                <span>Chicoutimi, Quebec, Canada</span>
                             </div>
                         </div>
                     </motion.div>

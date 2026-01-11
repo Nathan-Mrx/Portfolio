@@ -4,7 +4,10 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Mail, MapPin, User, MessageSquare, Loader2, CheckCircle2 } from 'lucide-react';
 
+import { useTranslations } from 'next-intl';
+
 export default function ContactPage({ params }) {
+    const t = useTranslations('Contact');
     const [sending, setSending] = useState(false);
     const [sent, setSent] = useState(false);
 
@@ -27,9 +30,9 @@ export default function ContactPage({ params }) {
                     transition={{ duration: 0.8 }}
                 >
                     <div className="contact-header">
-                        <span className="cyber-tag">TRANSCEIVER_ACTIVE</span>
-                        <h1 className="main-title">INITIATE_<span className="neon-text">TRANSMISSION</span></h1>
-                        <p className="subtitle">Secure communication channel for collaborators and recruiters.</p>
+                        <span className="cyber-tag">{t('tag')}</span>
+                        <h1 className="main-title">{t('title')}<span className="neon-text">{t('titleHighlight')}</span></h1>
+                        <p className="subtitle">{t('subtitle')}</p>
                     </div>
 
                     <div className="contact-grid">
@@ -44,20 +47,20 @@ export default function ContactPage({ params }) {
                                         exit={{ opacity: 0, scale: 0.95 }}
                                     >
                                         <div className="input-group">
-                                            <label><User size={12} /> NAME_IDENTIFIER</label>
-                                            <input type="text" placeholder="GUEST_USER" required />
+                                            <label><User size={12} /> {t('nameLabel')}</label>
+                                            <input type="text" placeholder={t('namePlaceholder')} required />
                                             <div className="input-glow"></div>
                                         </div>
 
                                         <div className="input-group">
-                                            <label><Mail size={12} /> EMAIL_ENDPOINT</label>
-                                            <input type="email" placeholder="USER@DOMAIN.COM" required />
+                                            <label><Mail size={12} /> {t('emailLabel')}</label>
+                                            <input type="email" placeholder={t('emailPlaceholder')} required />
                                             <div className="input-glow"></div>
                                         </div>
 
                                         <div className="input-group">
-                                            <label><MessageSquare size={12} /> DATA_PAYLOAD</label>
-                                            <textarea rows="6" placeholder="TYPE_YOUR_MESSAGE_HERE..." required></textarea>
+                                            <label><MessageSquare size={12} /> {t('messageLabel')}</label>
+                                            <textarea rows="6" placeholder={t('messagePlaceholder')} required></textarea>
                                             <div className="input-glow"></div>
                                         </div>
 
@@ -65,12 +68,12 @@ export default function ContactPage({ params }) {
                                             {sending ? (
                                                 <div className="btn-inside">
                                                     <Loader2 size={20} className="animate-spin" />
-                                                    <span>UPLOADING...</span>
+                                                    <span>{t('sending')}</span>
                                                 </div>
                                             ) : (
                                                 <div className="btn-inside">
                                                     <Send size={18} />
-                                                    <span>SEND_INTERACTIVE</span>
+                                                    <span>{t('sendButton')}</span>
                                                 </div>
                                             )}
                                         </button>
@@ -86,9 +89,9 @@ export default function ContactPage({ params }) {
                                             <CheckCircle2 size={64} className="neon-text" />
                                             <div className="icon-pulse"></div>
                                         </div>
-                                        <h2>TRANSMISSION_COMPLETE</h2>
-                                        <p>Data successfully routed to Nathan's terminal. Expect a response shortly.</p>
-                                        <button onClick={() => setSent(false)} className="cyber-rect-btn primary">NEW_RECEPTION</button>
+                                        <h2>{t('successTitle')}</h2>
+                                        <p>{t('successMessage')}</p>
+                                        <button onClick={() => setSent(false)} className="cyber-rect-btn primary">{t('newReception')}</button>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -97,20 +100,20 @@ export default function ContactPage({ params }) {
                         {/* Info Side */}
                         <div className="contact-info">
                             <div className="info-card hud-glass">
-                                <h3 className="hud-label">COORDS</h3>
+                                <h3 className="hud-label">{t('coords')}</h3>
                                 <div className="info-list">
                                     <div className="info-item">
                                         <Mail className="neon-text" size={18} />
                                         <div>
-                                            <label>DIRECT_INTEL</label>
-                                            <p>contact@nathan-mrx.dev</p>
+                                            <label>{t('directIntel')}</label>
+                                            <p>nathan.merieux@outlook.fr</p>
                                         </div>
                                     </div>
                                     <div className="info-item">
                                         <MapPin className="neon-text" size={18} />
                                         <div>
-                                            <label>GEO_LOC</label>
-                                            <p>Montreal, Quebec, Canada</p>
+                                            <label>{t('geoLoc')}</label>
+                                            <p>Chicoutimi, Quebec, Canada</p>
                                         </div>
                                     </div>
                                 </div>
@@ -119,12 +122,12 @@ export default function ContactPage({ params }) {
                             <div className="terminal-note hud-glass">
                                 <div className="term-header">
                                     <div className="term-dots"><span></span><span></span><span></span></div>
-                                    <span className="term-title">SYS_STATUS</span>
+                                    <span className="term-title">{t('sysStatus')}</span>
                                 </div>
                                 <div className="term-body">
-                                    <p><span className="caret">{'>'}</span> Encrypted tunnel established...</p>
-                                    <p><span className="caret">{'>'}</span> Latency: 24ms</p>
-                                    <p><span className="caret">{'>'}</span> Buffer: CLEAR</p>
+                                    <p><span className="caret">{'>'}</span> {t('tunnel')}</p>
+                                    <p><span className="caret">{'>'}</span> {t('latency')}</p>
+                                    <p><span className="caret">{'>'}</span> {t('buffer')}</p>
                                     <p className="blink-cursor"><span className="caret">{'>'}</span> _</p>
                                 </div>
                             </div>
