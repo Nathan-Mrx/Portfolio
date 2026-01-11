@@ -9,43 +9,6 @@
   overflow: hidden;
 }
 
-.background-dots {
-  position: absolute;
-  top: -10%;
-  left: -10%;
-  right: -10%;
-  bottom: -10%;
-  background-image: radial-gradient(rgba(0, 255, 157, 0.25) 1px, transparent 1px);
-  background-size: 35px 35px;
-  mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-  animation: move-dots 120s linear infinite;
-  z-index: -2;
-  opacity: 0.6;
-}
-
-.spotlight {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(600px circle at var(--x) var(--y),
-      rgba(0, 255, 157, 0.15),
-      transparent 80%);
-  z-index: -1;
-  pointer-events: none;
-}
-
-@keyframes move-dots {
-  from {
-    background-position: 0 0;
-  }
-
-  to {
-    background-position: 1000px 1000px;
-  }
-}
-
 .hero {
   text-align: center;
   max-width: 800px;

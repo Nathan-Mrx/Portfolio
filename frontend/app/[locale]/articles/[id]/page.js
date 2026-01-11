@@ -3,8 +3,10 @@
 import { useEffect, useState, use } from 'react';
 import { useLocale } from 'next-intl';
 import BlockRenderer from '@/components/BlockRenderer';
-import { ChevronLeft, Briefcase } from 'lucide-react';
+import { ChevronLeft, Briefcase, Calendar, Clock } from 'lucide-react';
 import { Link } from '@/i18n/routing';
+import { motion } from 'framer-motion';
+import styles from './details.module.css';
 
 export default function ArticleDetail({ params: paramsPromise }) {
     const params = use(paramsPromise);
@@ -13,7 +15,7 @@ export default function ArticleDetail({ params: paramsPromise }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api'}/articles/${params.id}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/articles/${params.id}`)
             .then(res => res.json())
             .then(data => {
                 setArticle(data);
@@ -25,7 +27,14 @@ export default function ArticleDetail({ params: paramsPromise }) {
             });
     }, [params.id]);
 
-    if (loading) return <div className="loading">Initializing System Data...</div>;
+    if (loading) return (
+        <div className={styles.articlePage}>
+            <div className={styles.detailContainer}>
+                <div style={{ color: 'var(--primary)', fontFamily: 'monospace' }}>ACCESSING_ARCHIVE_DATA...</div>
+            </div>
+        </div>
+    );
+
     if (!article) return <div className="error">Article not found.</div>;
 
     const getFullUrl = (path) => {
@@ -40,74 +49,75 @@ export default function ArticleDetail({ params: paramsPromise }) {
     const summary = locale === 'fr' ? article.contentFr : article.contentEn;
 
     return (
-        <div className="article-page" style={{ paddingTop: '6rem' }}>
-            <div className="content-container">
-                <Link href="/articles" className="back-link">
-                    <ChevronLeft size={20} /> Back to Archive
-                </Link>
+        <div className={styles.articlePage}>
+            <div className={styles.detailContainer}>
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <Link href="/articles" className={styles.backLink}>
+                        <ChevronLeft size={20} /> Back to Archive
+                    </Link>
+                </motion.div>
 
                 {article.coverUrl && (
-                    <div className="hero-image-container">
-                        <img src={getFullUrl(article.coverUrl)} alt={title} className="hero-image" />
-                    </div>
+                    <motion.div
+                        className={styles.heroImageContainer}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+                    >
+                        <img src={getFullUrl(article.coverUrl)} alt={title} className={styles.heroImage} />
+                    </motion.div>
                 )}
 
-                <article>
-                    <header className="article-header">
-                        <div className="article-meta">
-                            <span className="id-tag">[{new Date(article.publishedAt).toLocaleDateString()}]</span>
+                <motion.article
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                >
+                    <header className={styles.articleHeader}>
+                        <div className={styles.meta}>
+                            <span className={styles.idTag}>
+                                <Calendar size={14} style={{ display: 'inline', marginRight: '5px' }} />
+                                {new Date(article.publishedAt).toLocaleDateString()}
+                            </span>
                             {article.updatedAt && (
-                                <span className="update-tag">Updated: {new Date(article.updatedAt).toLocaleDateString()}</span>
+                                <span className={styles.updateTag}>
+                                    <Clock size={14} style={{ display: 'inline', marginRight: '5px' }} />
+                                    Updated: {new Date(article.updatedAt).toLocaleDateString()}
+                                </span>
                             )}
                         </div>
-                        <h1 style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>{title}</h1>
-                        {summary && <div className="summary-section">{summary}</div>}
+                        <h1 className={styles.title}>{title}</h1>
+                        {summary && <div className={styles.summary}>{summary}</div>}
                     </header>
 
-                    <div className="blocks-wrapper">
+                    <div className={styles.contentBody}>
                         <BlockRenderer blocks={article.contentBlocks} />
                     </div>
 
                     {article.linkedProjects && article.linkedProjects.length > 0 && (
-                        <div className="related-content">
-                            <h2 className="related-title">Related Projects</h2>
-                            <div className="related-grid">
+                        <section className={styles.relatedSection}>
+                            <h2 className={styles.relatedTitle}>Featured In Projects</h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
                                 {article.linkedProjects.map((project, index) => (
-                                    <Link key={`${project.id}-${index}`} href={`/projects/${project.id}`} className="related-card glass">
-                                        <div className="related-card-img">
-                                            {project.thumbnailUrl ? (
-                                                <img src={getFullUrl(project.thumbnailUrl)} alt={project.titleEn} />
-                                            ) : (
-                                                <div className="placeholder-icon"><Briefcase size={24} /></div>
-                                            )}
-                                        </div>
-                                        <div className="related-card-info">
-                                            <h4>{locale === 'fr' ? project.titleFr : project.titleEn}</h4>
-                                            <p>{locale === 'fr' ? project.descriptionFr : project.descriptionEn}</p>
+                                    <Link key={`${project.id}-${index}`} href={`/projects/${project.id}`}
+                                        style={{ display: 'flex', gap: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', textDecoration: 'none', color: 'inherit', border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.3s' }}>
+                                        {project.thumbnailUrl && (
+                                            <img src={getFullUrl(project.thumbnailUrl)} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px' }} />
+                                        )}
+                                        <div>
+                                            <h4 style={{ margin: '0' }}>{locale === 'fr' ? project.titleFr : project.titleEn}</h4>
+                                            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#888' }}>{locale === 'fr' ? project.descriptionFr : project.descriptionEn}</p>
                                         </div>
                                     </Link>
                                 ))}
                             </div>
-                        </div>
+                        </section>
                     )}
-
-                    {article.relatedArticles && article.relatedArticles.length > 0 && (
-                        <div className="related-content" style={{ marginTop: '2rem', borderTop: 'none' }}>
-                            <h2 className="related-title">More Articles</h2>
-                            <div className="related-grid list">
-                                {article.relatedArticles.map(relArt => (
-                                    <Link key={relArt.id} href={`/articles/${relArt.id}`} className="related-article-item glass">
-                                        <div className="related-article-info">
-                                            <span className="article-date">{new Date(relArt.publishedAt).toLocaleDateString()}</span>
-                                            <h4>{locale === 'fr' ? relArt.titleFr : relArt.titleEn}</h4>
-                                        </div>
-                                        <Briefcase size={18} />
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </article>
+                </motion.article>
             </div>
         </div>
     );

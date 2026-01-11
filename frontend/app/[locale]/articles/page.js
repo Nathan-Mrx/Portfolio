@@ -1,19 +1,32 @@
-import { fetchAPI } from '@/lib/api';
+'use client';
 
-export default async function Articles({ params }) {
-    const { locale } = await params;
-    let articles = [];
+import { useEffect, useState, use } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
+import { motion } from 'framer-motion';
+import { Calendar } from 'lucide-react';
+import styles from './articles.module.css';
 
-    try {
-        const data = await fetchAPI('/articles');
-        articles = data['hydra:member'] || data['member'] || [];
-    } catch (error) {
-        console.error('Failed to fetch articles:', error);
-    }
+export default function Articles({ params: paramsPromise }) {
+    const params = use(paramsPromise);
+    const locale = useLocale();
+    const t = useTranslations('Articles');
 
-    const { getTranslations } = await import('next-intl/server');
-    const { Link } = await import('@/i18n/routing');
-    const t = await getTranslations('Articles');
+    const [articles, setArticles] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/articles`)
+            .then(res => res.json())
+            .then(data => {
+                setArticles(data['hydra:member'] || data['member'] || []);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error('Failed to fetch articles:', err);
+                setLoading(false);
+            });
+    }, []);
 
     const getFullUrl = (path) => {
         if (!path) return null;
@@ -23,54 +36,98 @@ export default async function Articles({ params }) {
         return `${origin}${path}`;
     };
 
-    return (
-        <div className="container" style={{ paddingTop: '8rem' }}>
-            <h1 style={{ marginBottom: '2rem', fontSize: '2.5rem' }}>{t('title')}</h1>
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.2
+            }
+        }
+    };
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {articles.length === 0 ? (
-                    <p>No articles found.</p>
-                ) : (
-                    articles.map((article, index) => (
-                        <Link
-                            key={article.id || index}
-                            href={`/articles/${article.id}`}
-                            className="glass article-card"
-                            style={{
-                                display: 'flex',
-                                gap: '2rem',
-                                padding: '1.5rem',
-                                borderRadius: '16px',
-                                textDecoration: 'none',
-                                color: 'inherit',
-                                border: '1px solid #222',
-                                transition: 'all 0.3s'
-                            }}
-                        >
-                            {article.thumbnailUrl && (
-                                <div style={{ width: '200px', height: '140px', flexShrink: 0, overflow: 'hidden', borderRadius: '8px' }}>
-                                    <img
-                                        src={getFullUrl(article.thumbnailUrl)}
-                                        alt=""
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                </div>
-                            )}
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontFamily: 'monospace', marginBottom: '0.5rem' }}>
-                                    {new Date(article.publishedAt).toLocaleDateString(locale)}
-                                </div>
-                                <h2 style={{ marginBottom: '0.75rem', fontSize: '1.5rem' }}>
-                                    {locale === 'fr' ? article.titleFr : article.titleEn}
-                                </h2>
-                                <p style={{ color: '#888', lineHeight: '1.6', fontSize: '1rem' }}>
-                                    {locale === 'fr' ? article.contentFr : article.contentEn}
-                                </p>
-                            </div>
-                        </Link>
-                    ))
-                )}
+    const cardVariants = {
+        hidden: { opacity: 0, x: -20 },
+        visible: {
+            opacity: 1,
+            x: 0,
+            transition: {
+                duration: 0.5,
+                ease: [0.2, 0.8, 0.2, 1]
+            }
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className={styles.articlesPage}>
+                <div className="container">
+                    <div style={{ color: 'var(--primary)', fontFamily: 'monospace' }}>RESYNCING_ARCHIVES...</div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={styles.articlesPage}>
+            <div className="container">
+                <motion.h1
+                    className={styles.title}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                >
+                    {t('title')}
+                </motion.h1>
+
+                <motion.div
+                    className={styles.articlesList}
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
+                    {articles.length === 0 ? (
+                        <p>No articles found.</p>
+                    ) : (
+                        articles.map((article, index) => (
+                            <motion.div key={article.id || index} variants={cardVariants}>
+                                <Link
+                                    href={`/articles/${article.id}`}
+                                    className={styles.articleCard}
+                                >
+                                    {article.thumbnailUrl && (
+                                        <div className={styles.imageContainer}>
+                                            <img
+                                                src={getFullUrl(article.thumbnailUrl)}
+                                                alt=""
+                                                className={styles.cardImage}
+                                            />
+                                        </div>
+                                    )}
+                                    <div className={styles.content}>
+                                        <div className={styles.meta}>
+                                            <Calendar size={14} />
+                                            {new Date(article.publishedAt).toLocaleDateString(locale, {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </div>
+                                        <h2 className={styles.articleTitle}>
+                                            {locale === 'fr' ? article.titleFr : article.titleEn}
+                                        </h2>
+                                        <p className={styles.articleSummary}>
+                                            {locale === 'fr' ? article.contentFr : article.contentEn}
+                                        </p>
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        ))
+                    )}
+                </motion.div>
             </div>
         </div>
     );
 }
+
