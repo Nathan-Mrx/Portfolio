@@ -12,8 +12,34 @@ const outfit = Outfit({
 });
 
 export const metadata = {
-  title: "Game Dev Portfolio",
-  description: "Portfolio of a Game Developer",
+  title: {
+    default: "Nathan-Mrx | Game Dev Portfolio",
+    template: "%s | Nathan-Mrx"
+  },
+  description: "Senior Game Developer & UX Engineer Portfolio. Specializing in Unity, Unreal Engine 5, and high-performance technical art.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: '/',
+    siteName: 'Nathan-Mrx Portfolio',
+    images: [{
+      url: '/og-image.png',
+      width: 1200,
+      height: 630,
+      alt: 'Nathan-Mrx Cyber Portfolio',
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nathan-Mrx | Game Dev Portfolio',
+    description: 'Senior Game Developer & UX Engineer Portfolio.',
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default async function RootLayout({ children, params }) {

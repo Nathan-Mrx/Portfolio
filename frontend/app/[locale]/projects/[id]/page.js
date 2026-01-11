@@ -1,45 +1,24 @@
-'use client';
+import ProjectDetailView from './ProjectDetailView';
 
-import { useEffect, useState, use } from 'react';
-import { useLocale } from 'next-intl';
-import BlockRenderer from '@/components/BlockRenderer';
-import { ChevronLeft, ExternalLink, ArrowRight, Briefcase } from 'lucide-react';
-import { Link } from '@/i18n/routing';
-import { motion } from 'framer-motion';
-import styles from './details.module.css';
+async function getProject(id) {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/projects/${id}`, {
+        next: { revalidate: 3600 } // Cache for 1 hour
+    });
+    if (!res.ok) return null;
+    return res.json();
+}
 
-export default function ProjectDetail({ params: paramsPromise }) {
-    const params = use(paramsPromise);
-    const locale = useLocale();
-    const [project, setProject] = useState(null);
-    const [loading, setLoading] = useState(true);
+export async function generateMetadata({ params: paramsPromise }) {
+    const params = await paramsPromise;
+    const project = await getProject(params.id);
+    const locale = params.locale;
 
-    useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/projects/${params.id}`)
-            .then(res => res.json())
-            .then(data => {
-                setProject(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                setLoading(false);
-            });
-    }, [params.id]);
-
-    if (loading) return (
-        <div className={styles.projectPage}>
-            <div className={styles.detailContainer}>
-                <div style={{ color: 'var(--primary)', fontFamily: 'monospace' }}>INITIALIZING_PROJECT_MODULE...</div>
-            </div>
-        </div>
-    );
-
-    if (!project) return <div className="error">Project not found.</div>;
+    if (!project) return { title: 'Project Not Found' };
 
     const title = locale === 'fr' ? project.titleFr : project.titleEn;
-    const description = locale === 'fr' ? project.descriptionFr : project.descriptionEn;
+    const description = locale === 'fr' ? (project.descriptionFr || project.titleFr) : (project.descriptionEn || project.titleEn);
 
+    // Use cover image for OG if available
     const getFullUrl = (path) => {
         if (!path) return null;
         if (path.startsWith('http')) return path;
@@ -48,77 +27,32 @@ export default function ProjectDetail({ params: paramsPromise }) {
         return `${origin}${path}`;
     };
 
-    return (
-        <div className={styles.projectPage}>
-            <div className={styles.detailContainer}>
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <Link href="/projects" className={styles.backLink}>
-                        <ChevronLeft size={20} /> Back to Projects
-                    </Link>
-                </motion.div>
+    const ogImage = project.coverUrl ? getFullUrl(project.coverUrl) : '/og-image.png';
 
-                {project.coverUrl && (
-                    <motion.div
-                        className={styles.heroImageContainer}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-                    >
-                        <img src={getFullUrl(project.coverUrl)} alt={title} className={styles.heroImage} />
-                    </motion.div>
-                )}
+    return {
+        title: title,
+        description: description,
+        openGraph: {
+            title: title,
+            description: description,
+            images: [ogImage],
+            type: 'article',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: title,
+            description: description,
+            images: [ogImage],
+        }
+    };
+}
 
-                <main>
-                    <motion.article
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                    >
-                        <header className={styles.projectHeader}>
-                            <div className={styles.meta}>
-                                <span className={styles.idTag}>[{new Date(project.publishedAt || project.createdAt).toLocaleDateString()}]</span>
-                                {project.updatedAt && (
-                                    <span className={styles.updateTag}>Updated: {new Date(project.updatedAt).toLocaleDateString()}</span>
-                                )}
-                            </div>
-                            <h1 className={styles.title}>{title}</h1>
-                            {description && <div className={styles.summary}>{description}</div>}
-                            {project.link && (
-                                <a href={project.link} target="_blank" rel="noopener noreferrer" className={styles.externalLink}>
-                                    View Live Project <ExternalLink size={18} />
-                                </a>
-                            )}
-                        </header>
+export default async function ProjectPage({ params: paramsPromise }) {
+    const params = await paramsPromise;
+    const project = await getProject(params.id);
 
-                        <div className={styles.contentBody}>
-                            <BlockRenderer blocks={project.contentBlocks} />
-                        </div>
+    if (!project) return <div className="error">Project not found.</div>;
 
-                        {project.linkedArticles && project.linkedArticles.length > 0 && (
-                            <section className={styles.relatedSection}>
-                                <h2 className={styles.relatedTitle}>Related Technical Updates</h2>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                    {project.linkedArticles.map(article => (
-                                        <Link key={article.id} href={`/articles/${article.id}`}
-                                            style={{ display: 'flex', justifyContent: 'space-between', padding: '1.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', textDecoration: 'none', color: 'inherit', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                            <div>
-                                                <span style={{ color: 'var(--primary)', fontSize: '0.8rem', fontFamily: 'monospace' }}>[{new Date(article.publishedAt).toLocaleDateString()}]</span>
-                                                <h4 style={{ margin: '0.25rem 0 0 0' }}>{locale === 'fr' ? article.titleFr : article.titleEn}</h4>
-                                            </div>
-                                            <ArrowRight size={18} />
-                                        </Link>
-                                    ))}
-                                </div>
-                            </section>
-                        )}
-                    </motion.article>
-                </main>
-            </div>
-        </div>
-    );
+    return <ProjectDetailView project={project} />;
 }
 

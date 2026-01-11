@@ -7,6 +7,7 @@ import Link from 'next/link';
 import BlockEditor from '@/components/BlockEditor';
 import RelationSelector from '@/components/RelationSelector';
 import ImageUpload from '@/components/ImageUpload';
+import SocialPreview from '@/components/SocialPreview';
 
 export default function EditArticle({ params }) {
     const { id, locale } = use(params);
@@ -193,6 +194,12 @@ export default function EditArticle({ params }) {
                             />
                         </div>
                     </div>
+                    <SocialPreview
+                        title={locale === 'fr' ? formData.titleFr : formData.titleEn}
+                        description={locale === 'fr' ? formData.contentFr : formData.contentEn}
+                        image={formData.coverUrl || formData.thumbnailUrl}
+                        type="article"
+                    />
                 </div>
 
                 <div className="form-section hud-glass">
