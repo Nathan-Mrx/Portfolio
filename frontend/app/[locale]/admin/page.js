@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Edit, FileText, Briefcase, Loader2, ExternalLink, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Plus, Edit, FileText, Briefcase, Loader2, ExternalLink, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, User } from 'lucide-react';
 
 export default function AdminDashboard({ params }) {
     const { locale } = use(params);
@@ -197,6 +197,9 @@ export default function AdminDashboard({ params }) {
             <header className="dashboard-header">
                 <h1>ADMIN_CMD : <span className="neon-text">DASHBOARD</span></h1>
                 <div className="quick-actions">
+                    <Link href={`/${locale}/admin/profile`} className="cyber-rect-btn primary">
+                        <User size={18} /> <span>SITE_PROFILE</span>
+                    </Link>
                     <Link href={`/${locale}/admin/projects/create`} className="cyber-rect-btn primary">
                         <Plus size={18} /> <span>CRT_PROJECT</span>
                     </Link>

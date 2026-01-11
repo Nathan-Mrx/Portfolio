@@ -27,6 +27,9 @@ export default function Header({ locale }) {
         { label: 'Home', path: '/' },
         { label: 'Projects', path: '/projects' },
         { label: 'Articles', path: '/articles' },
+        { label: 'Resume', path: '/resume' },
+        { label: 'About', path: '/about' },
+        { label: 'Contact', path: '/contact' },
     ];
 
     const socialLinks = [
