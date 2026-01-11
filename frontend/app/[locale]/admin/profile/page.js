@@ -71,6 +71,8 @@ export default function AdminProfile({ params: paramsPromise }) {
             const payload = {
                 aboutEn: clean(formData.aboutEn),
                 aboutFr: clean(formData.aboutFr),
+                resumeBioEn: clean(formData.resumeBioEn),
+                resumeBioFr: clean(formData.resumeBioFr),
                 email: clean(formData.email),
                 phone: clean(formData.phone),
                 jobTitleEn: clean(formData.jobTitleEn),

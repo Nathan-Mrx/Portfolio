@@ -60,6 +60,14 @@ class Profile
     #[Groups(['profile:read', 'profile:write'])]
     private ?string $availabilityStatus = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['profile:read', 'profile:write'])]
+    private ?string $resumeBioEn = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['profile:read', 'profile:write'])]
+    private ?string $resumeBioFr = null;
+
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(['profile:read', 'profile:write'])]
     private ?array $resumeData = null;
@@ -151,6 +159,28 @@ class Profile
     public function setAvailabilityStatus(?string $availabilityStatus): self
     {
         $this->availabilityStatus = $availabilityStatus;
+        return $this;
+    }
+
+    public function getResumeBioEn(): ?string
+    {
+        return $this->resumeBioEn;
+    }
+
+    public function setResumeBioEn(?string $resumeBioEn): self
+    {
+        $this->resumeBioEn = $resumeBioEn;
+        return $this;
+    }
+
+    public function getResumeBioFr(): ?string
+    {
+        return $this->resumeBioFr;
+    }
+
+    public function setResumeBioFr(?string $resumeBioFr): self
+    {
+        $this->resumeBioFr = $resumeBioFr;
         return $this;
     }
 

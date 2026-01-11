@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { motion } from 'framer-motion';
 import OptimizedImage from '@/components/OptimizedImage';
-import { Terminal, Cpu, Database, Globe, Mail, Phone, MapPin, Activity, Zap, Shield, ChevronRight, BarChart3, Binary } from 'lucide-react';
+import { Terminal, Cpu, Database, Globe, Mail, Phone, MapPin, Activity, Zap, Shield, ChevronRight, BarChart3, Binary, Languages } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function AboutPage({ params: paramsPromise }) {
@@ -174,6 +174,28 @@ export default function AboutPage({ params: paramsPromise }) {
                                     </div>
                                 </div>
                             </div>
+
+                            <div className="vitals-card hud-glass">
+                                <h3 className="module-title"><Languages size={14} /> LINGUISTIC_NODES</h3>
+                                <div className="vital-rows">
+                                    {(profile?.resumeData?.languages || []).map((lang, i) => (
+                                        <div key={i} className="language-node-sidebar">
+                                            <div className="vital-label">
+                                                <span>{lang.name}</span>
+                                                <span>{lang.status}</span>
+                                            </div>
+                                            <div className="level-dots">
+                                                {[...Array(5)].map((_, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        className={`dot ${idx < lang.level ? 'active' : ''}`}
+                                                    ></div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </motion.aside>
 
                         {/* Main: Core Narrative */}
@@ -219,7 +241,7 @@ export default function AboutPage({ params: paramsPromise }) {
                                         <div className="node-icon"><MapPin size={18} /></div>
                                         <div className="node-data">
                                             <span className="label">GEO_COORDINATES</span>
-                                            <span className="value">Chicoutimi, QC, CA</span>
+                                            <span className="value">{profile?.location || 'Chicoutimi, QC, CA'}</span>
                                         </div>
                                     </div>
                                     <div className="node-item">
@@ -414,6 +436,27 @@ export default function AboutPage({ params: paramsPromise }) {
                 .node-data { display: flex; flex-direction: column; }
                 .label { font-size: 0.55rem; font-weight: 900; color: #444; letter-spacing: 1px; }
                 .value { font-size: 0.8rem; font-weight: 700; color: #888; }
+
+                .language-node {
+                    justify-content: space-between;
+                }
+                .level-dots {
+                    display: flex;
+                    gap: 6px;
+                }
+                .dot {
+                    width: 7px;
+                    height: 7px;
+                    border: 1px solid rgba(0, 255, 157, 0.3);
+                    border-radius: 50%;
+                    transition: all 0.3s ease;
+                    background: rgba(0, 0, 0, 0.5);
+                }
+                .dot.active {
+                    background: #00ff9d;
+                    box-shadow: 0 0 10px #00ff9d, 0 0 20px rgba(0, 255, 157, 0.4);
+                    border-color: #00ff9d;
+                }
 
                 /* Loading State */
                 .loading-overlay {

@@ -39,7 +39,7 @@ export default function CyberBackground() {
 
     // Use conditional rendering ONLY in the return, not early return
     return (
-        <div className={styles.cyberBackground} style={{ display: isAdmin ? 'none' : 'block' }}>
+        <div className={`${styles.cyberBackground} no-print`} style={{ display: isAdmin ? 'none' : 'block' }}>
             {/* Background Dots with Parallax */}
             <motion.div
                 className={styles.backgroundDots}

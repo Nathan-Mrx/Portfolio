@@ -143,6 +143,9 @@ export default function Header({ locale }) {
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     border-bottom: 1px solid transparent;
                 }
+                @media print {
+                    .site-header { display: none !important; }
+                }
 
                 .site-header.scrolled {
                     padding: 1rem 0;

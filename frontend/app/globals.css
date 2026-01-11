@@ -77,6 +77,16 @@ h6 {
   padding: 0 1rem;
 }
 
+.no-print {
+  display: block;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
 /* Card Styles */
 .project-card,
 .article-card {

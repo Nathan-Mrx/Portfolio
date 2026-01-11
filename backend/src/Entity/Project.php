@@ -23,7 +23,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
     denormalizationContext: ['groups' => ['project:write']],
     paginationEnabled: true,
     paginationItemsPerPage: 8,
-    paginationClientItemsPerPage: true
+    paginationClientItemsPerPage: true,
+    paginationClientEnabled: true
 )]
 #[ApiFilter(SearchFilter::class, properties: ['titleEn' => 'ipartial', 'titleFr' => 'ipartial'])]
 #[ApiFilter(OrderFilter::class, properties: ['createdAt' => 'DESC'])]
