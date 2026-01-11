@@ -2,6 +2,7 @@ import { Outfit } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import "../globals.css";
+import Header from "@/components/Header";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default async function RootLayout({ children, params }) {
     <html lang={locale}>
       <body className={`${outfit.variable}`}>
         <NextIntlClientProvider messages={messages}>
+          <Header locale={locale} />
           {children}
         </NextIntlClientProvider>
       </body>

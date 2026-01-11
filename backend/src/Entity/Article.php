@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -18,23 +19,27 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[Vich\Uploadable]
 #[ApiResource(
     normalizationContext: ['groups' => ['article:read']],
-    denormalizationContext: ['groups' => ['article:write']]
+    denormalizationContext: ['groups' => ['article:write']],
+    paginationEnabled: true,
+    paginationItemsPerPage: 8,
+    paginationClientItemsPerPage: true
 )]
 #[ApiFilter(SearchFilter::class, properties: ['titleEn' => 'ipartial', 'titleFr' => 'ipartial'])]
+#[ApiFilter(OrderFilter::class, properties: ['publishedAt' => 'DESC'])]
 class Article
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['article:read'])]
+    #[Groups(['article:read', 'project:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['article:read', 'article:write'])]
+    #[Groups(['article:read', 'article:write', 'project:read'])]
     private ?string $titleEn = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['article:read', 'article:write'])]
+    #[Groups(['article:read', 'article:write', 'project:read'])]
     private ?string $titleFr = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -46,7 +51,7 @@ class Article
     private ?string $contentFr = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['article:read', 'article:write'])]
+    #[Groups(['article:read', 'article:write', 'project:read'])]
     private ?\DateTimeImmutable $publishedAt = null;
 
     #[Vich\UploadableField(mapping: 'article_images', fileNameProperty: 'thumbnailName')]
@@ -173,7 +178,7 @@ class Article
         return $this->thumbnailName;
     }
 
-    #[Groups(['article:read'])]
+    #[Groups(['article:read', 'project:read'])]
     public function getThumbnailUrl(): ?string
     {
         if (!$this->thumbnailName) {

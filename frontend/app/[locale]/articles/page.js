@@ -24,7 +24,7 @@ export default async function Articles({ params }) {
     };
 
     return (
-        <div className="container" style={{ paddingTop: '4rem' }}>
+        <div className="container" style={{ paddingTop: '8rem' }}>
             <h1 style={{ marginBottom: '2rem', fontSize: '2.5rem' }}>{t('title')}</h1>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

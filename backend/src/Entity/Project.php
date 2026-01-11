@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProjectRepository;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -19,15 +20,19 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[Vich\Uploadable]
 #[ApiResource(
     normalizationContext: ['groups' => ['project:read']],
-    denormalizationContext: ['groups' => ['project:write']]
+    denormalizationContext: ['groups' => ['project:write']],
+    paginationEnabled: true,
+    paginationItemsPerPage: 8,
+    paginationClientItemsPerPage: true
 )]
 #[ApiFilter(SearchFilter::class, properties: ['titleEn' => 'ipartial', 'titleFr' => 'ipartial'])]
+#[ApiFilter(OrderFilter::class, properties: ['createdAt' => 'DESC'])]
 class Project
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['project:read'])]
+    #[Groups(['project:read', 'article:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -190,7 +195,7 @@ class Project
         return $this->thumbnailName;
     }
 
-    #[Groups(['project:read'])]
+    #[Groups(['project:read', 'article:read'])]
     public function getThumbnailUrl(): ?string
     {
         if (!$this->thumbnailName) {

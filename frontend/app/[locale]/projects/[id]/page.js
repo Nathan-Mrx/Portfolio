@@ -40,7 +40,7 @@ export default function ProjectDetail({ params: paramsPromise }) {
     };
 
     return (
-        <div className="project-page">
+        <div className="project-page" style={{ paddingTop: '6rem' }}>
             <div className="content-container">
                 <Link href="/projects" className="back-link">
                     <ChevronLeft size={20} /> Back to Projects

@@ -131,12 +131,14 @@ export default function CreateArticle() {
                         id="thumbnail-upload"
                         value={formData.thumbnailUrl}
                         onChange={(url) => setFormData({ ...formData, thumbnailUrl: url })}
+                        helpText="Recommended: 600x600px (1:1 Ratio)"
                     />
                     <ImageUpload
                         label="Cover Image"
                         id="cover-upload"
                         value={formData.coverUrl}
                         onChange={(url) => setFormData({ ...formData, coverUrl: url })}
+                        helpText="Recommended: 1920x600px (Wide Banner)"
                     />
                 </div>
 

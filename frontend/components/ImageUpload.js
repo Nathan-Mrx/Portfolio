@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Image, Upload, X } from 'lucide-react';
 
-export default function ImageUpload({ label, value, onChange, id }) {
+export default function ImageUpload({ label, value, onChange, id, helpText }) {
     const [uploading, setUploading] = useState(false);
     const [preview, setPreview] = useState(value || null);
 
@@ -64,7 +64,10 @@ export default function ImageUpload({ label, value, onChange, id }) {
 
     return (
         <div className="image-upload">
-            <label htmlFor={id}>{label}</label>
+            <div className="label-wrapper">
+                <label htmlFor={id}>{label}</label>
+                {helpText && <span className="help-text">{helpText}</span>}
+            </div>
             {preview ? (
                 <div className="image-preview">
                     <img src={getFullUrl(preview)} alt="Preview" />
@@ -97,11 +100,22 @@ export default function ImageUpload({ label, value, onChange, id }) {
                 .image-upload {
                     margin-bottom: 1.5rem;
                 }
+                .label-wrapper {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 0.5rem;
+                }
                 .image-upload label {
                     display: block;
                     font-size: 0.85rem;
                     color: #888;
-                    margin-bottom: 0.5rem;
+                    margin-bottom: 0;
+                }
+                .help-text {
+                    font-size: 0.75rem;
+                    color: var(--primary);
+                    opacity: 0.8;
                 }
                 .upload-area {
                     display: flex;

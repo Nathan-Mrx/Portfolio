@@ -78,9 +78,9 @@ export default function EditProject({ params }) {
             };
 
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/ld+json',
+                    'Content-Type': 'application/merge-patch+json',
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(payload)
@@ -192,12 +192,14 @@ export default function EditProject({ params }) {
                             id="edit-project-thumbnail-upload"
                             value={formData.thumbnailUrl}
                             onChange={(url) => setFormData({ ...formData, thumbnailUrl: url })}
+                            helpText="Recommended: 600x600px (1:1 Ratio)"
                         />
                         <ImageUpload
                             label="Cover Image"
                             id="edit-project-cover-upload"
                             value={formData.coverUrl}
                             onChange={(url) => setFormData({ ...formData, coverUrl: url })}
+                            helpText="Recommended: 1920x600px (Wide Banner)"
                         />
                         <div className="field-group full">
                             <label>Project External Link</label>

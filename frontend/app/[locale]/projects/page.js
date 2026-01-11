@@ -38,7 +38,7 @@ export default async function Projects({ params }) {
     };
 
     return (
-        <div className="container" style={{ paddingTop: '4rem' }}>
+        <div className="container" style={{ paddingTop: '8rem' }}>
             <h1 style={{ marginBottom: '2rem', fontSize: '2.5rem' }}>{t('title')}</h1>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2.5rem' }}>

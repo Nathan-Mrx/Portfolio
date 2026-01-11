@@ -40,7 +40,7 @@ export default function ArticleDetail({ params: paramsPromise }) {
     const summary = locale === 'fr' ? article.contentFr : article.contentEn;
 
     return (
-        <div className="article-page">
+        <div className="article-page" style={{ paddingTop: '6rem' }}>
             <div className="content-container">
                 <Link href="/articles" className="back-link">
                     <ChevronLeft size={20} /> Back to Archive
