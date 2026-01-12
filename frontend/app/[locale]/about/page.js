@@ -138,9 +138,11 @@ export default function AboutPage({ params: paramsPromise }) {
                                         <div className="vital-bar">
                                             <motion.div
                                                 className="bar-fill"
+                                                variants={{}}
                                                 initial={{ width: 0 }}
                                                 animate={{ width: '94%' }}
-                                                transition={{ duration: 1.5, delay: 0.5 }}
+                                                transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+                                                style={{ backgroundColor: '#00ff9d', height: '100%', boxShadow: '0 0 10px #00ff9d' }}
                                             ></motion.div>
                                         </div>
                                     </div>
@@ -152,9 +154,11 @@ export default function AboutPage({ params: paramsPromise }) {
                                         <div className="vital-bar">
                                             <motion.div
                                                 className="bar-fill"
+                                                variants={{}}
                                                 initial={{ width: 0 }}
                                                 animate={{ width: '88%' }}
-                                                transition={{ duration: 1.5, delay: 0.7 }}
+                                                transition={{ duration: 1.5, delay: 0.7, ease: "easeOut" }}
+                                                style={{ backgroundColor: '#00ff9d', height: '100%', boxShadow: '0 0 10px #00ff9d' }}
                                             ></motion.div>
                                         </div>
                                     </div>
@@ -166,9 +170,11 @@ export default function AboutPage({ params: paramsPromise }) {
                                         <div className="vital-bar">
                                             <motion.div
                                                 className="bar-fill"
+                                                variants={{}}
                                                 initial={{ width: 0 }}
                                                 animate={{ width: '100%' }}
-                                                transition={{ duration: 1.5, delay: 0.9 }}
+                                                transition={{ duration: 1.5, delay: 0.9, ease: "easeOut" }}
+                                                style={{ backgroundColor: '#00ff9d', height: '100%', boxShadow: '0 0 10px #00ff9d' }}
                                             ></motion.div>
                                         </div>
                                     </div>
@@ -407,8 +413,8 @@ export default function AboutPage({ params: paramsPromise }) {
                 }
                 .vital-rows { display: flex; flex-direction: column; gap: 1rem; }
                 .vital-label { display: flex; justify-content: space-between; font-size: 0.6rem; font-weight: 900; color: #555; margin-bottom: 0.4rem; }
-                .vital-bar { height: 4px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); }
-                .bar-fill { height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+                .vital-bar { height: 6px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); }
+                .bar-fill { height: 100%; background-color: #00ff9d; box-shadow: 0 0 10px #00ff9d; }
 
                 /* Main Content Styles */
                 .interface-main { display: flex; flex-direction: column; gap: 2rem; }
