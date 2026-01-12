@@ -8,6 +8,10 @@ framework:
     #esi: true
     #fragments: true
 
+    # Trust localhost (Nginx) and trust standard forwarded headers
+    trusted_proxies: '127.0.0.1'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host', 'x-forwarded-port']
+
 when@test:
     framework:
         test: true

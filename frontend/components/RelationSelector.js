@@ -27,6 +27,8 @@ export default function RelationSelector({ type, value, onChange, label }) {
         setLoading(true);
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+            // Determine endpoint based on type (e.g., 'project' -> 'projects', 'article' -> 'articles')
+            const endpoint = `${type}s`;
             // Search both English and French titles in parallel
             const [resEn, resFr] = await Promise.all([
                 fetch(`${apiUrl}/${endpoint}?titleEn=${searchTerm}`),
