@@ -16,7 +16,7 @@ export const metadata = {
     default: "Nathan-Mrx | Game Dev Portfolio",
     template: "%s | Nathan-Mrx"
   },
-  description: "Senior Game Developer & UX Engineer Portfolio. Specializing in Unity, Unreal Engine 5, and high-performance technical art.",
+  description: "Game Developer Portfolio. Specializing gameplay programming in Unreal Engine 5",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   openGraph: {
     type: 'website',
@@ -33,7 +33,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Nathan-Mrx | Game Dev Portfolio',
-    description: 'Senior Game Developer & UX Engineer Portfolio.',
+    description: 'Game Developer Portfolio.',
     images: ['/og-image.png'],
   },
   robots: {
