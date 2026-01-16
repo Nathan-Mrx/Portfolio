@@ -22,12 +22,21 @@ const formats = [
 ];
 
 export default function RichTextEditor({ value, onChange, placeholder }) {
+    const handleValueChange = (content) => {
+        // Replace non-breaking spaces (\u00A0 and &nbsp;) with regular spaces
+        // This fixes wrapping issues where Quill uses nbsps
+        const cleaned = content.replace(/\u00A0/g, ' ').replace(/&nbsp;/g, ' ');
+        if (onChange) {
+            onChange(cleaned);
+        }
+    };
+
     return (
         <div className="rich-text-editor">
             <ReactQuill
                 theme="snow"
                 value={value}
-                onChange={onChange}
+                onChange={handleValueChange}
                 modules={modules}
                 formats={formats}
                 placeholder={placeholder}
@@ -43,11 +52,13 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
                     word-break: normal !important;
                     overflow-wrap: break-word !important;
                     hyphens: none !important;
+                    white-space: pre-wrap !important;
                 }
                 .rich-text-editor .ql-editor {
                     word-break: normal !important;
                     overflow-wrap: break-word !important;
                     hyphens: none !important;
+                    white-space: pre-wrap !important;
                 }
                 .rich-text-editor .ql-toolbar {
                     background: #1a1a1a;

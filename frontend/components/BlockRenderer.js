@@ -30,7 +30,8 @@ export default function BlockRenderer({ blocks }) {
         <div className="block-renderer">
             {blocks.map((block, index) => {
                 if (block.type === 'text') {
-                    const content = locale === 'fr' ? block.contentFr : block.contentEn;
+                    const rawContent = locale === 'fr' ? block.contentFr : block.contentEn;
+                    const content = rawContent ? rawContent.replace(/\u00A0/g, ' ').replace(/&nbsp;/g, ' ') : '';
                     return (
                         <div
                             key={index}
