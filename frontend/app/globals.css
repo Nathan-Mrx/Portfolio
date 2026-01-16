@@ -182,6 +182,9 @@ h6 {
   line-height: 1.8;
   font-size: 1.15rem;
   color: #ccc;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: none !important;
 }
 
 .text-block h1,

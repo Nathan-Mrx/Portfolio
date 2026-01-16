@@ -142,9 +142,10 @@ export default function BlockRenderer({ blocks }) {
                 :global(.text-block) {
                     line-height: 1.8;
                     color: #ddd;
-                    overflow-wrap: break-word;
-                    word-wrap: break-word;
-                    word-break: normal;
+                    overflow-wrap: break-word !important;
+                    word-wrap: break-word !important;
+                    word-break: normal !important;
+                    hyphens: none !important;
                 }
                 .image-block {
                     margin: 0;
