@@ -22,12 +22,17 @@ const formats = [
 ];
 
 export default function RichTextEditor({ value, onChange, placeholder }) {
+    const handleChange = (content) => {
+        const normalized = content.replace(/&nbsp;/g, ' ').replace(/\u00a0/g, ' ');
+        onChange(normalized);
+    };
+
     return (
         <div className="rich-text-editor">
             <ReactQuill
                 theme="snow"
                 value={value}
-                onChange={onChange}
+                onChange={handleChange}
                 modules={modules}
                 formats={formats}
                 placeholder={placeholder}
@@ -41,12 +46,14 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
                     border-color: #333 !important;
                     color: #fff;
                     word-break: normal !important;
-                    overflow-wrap: break-word !important;
+                    overflow-wrap: normal !important;
+                    word-wrap: normal !important;
                     hyphens: none !important;
                 }
                 .rich-text-editor .ql-editor {
                     word-break: normal !important;
-                    overflow-wrap: break-word !important;
+                    overflow-wrap: normal !important;
+                    word-wrap: normal !important;
                     hyphens: none !important;
                 }
                 .rich-text-editor .ql-toolbar {
