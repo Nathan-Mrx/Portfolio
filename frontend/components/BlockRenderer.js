@@ -145,7 +145,7 @@ export default function BlockRenderer({ blocks }) {
                     color: #ddd;
                     overflow-wrap: normal !important;
                     word-wrap: normal !important;
-                    word-break: keep-all !important;
+                    word-break: normal !important;
                     hyphens: none !important;
                     white-space: normal !important;
                 }

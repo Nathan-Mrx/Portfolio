@@ -184,7 +184,7 @@ h6 {
   line-height: 1.8;
   font-size: 1.15rem;
   color: #ccc;
-  word-break: keep-all !important;
+  word-break: normal !important;
   overflow-wrap: normal !important;
   word-wrap: normal !important;
   hyphens: none !important;
@@ -194,8 +194,8 @@ h6 {
 /* Specific fix for Quill editor content to prevent mid-word breaks */
 .ql-editor * {
   word-break: normal !important;
-  overflow-wrap: break-word !important;
-  word-wrap: break-word !important;
+  overflow-wrap: normal !important;
+  word-wrap: normal !important;
   hyphens: none !important;
 }
 
