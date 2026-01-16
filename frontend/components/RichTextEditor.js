@@ -22,12 +22,17 @@ const formats = [
 ];
 
 export default function RichTextEditor({ value, onChange, placeholder }) {
+    const handleChange = (content) => {
+        const normalized = content.replace(/&nbsp;/g, ' ').replace(/\u00a0/g, ' ');
+        onChange(normalized);
+    };
+
     return (
         <div className="rich-text-editor">
             <ReactQuill
                 theme="snow"
                 value={value}
-                onChange={onChange}
+                onChange={handleChange}
                 modules={modules}
                 formats={formats}
                 placeholder={placeholder}
