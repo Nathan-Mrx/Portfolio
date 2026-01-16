@@ -139,13 +139,15 @@ export default function BlockRenderer({ blocks }) {
                     gap: 3rem;
                     margin: 2rem 0;
                 }
-                :global(.text-block) {
+                :global(.text-block),
+                :global(.text-block *) {
                     line-height: 1.8;
                     color: #ddd;
                     overflow-wrap: break-word !important;
                     word-wrap: break-word !important;
                     word-break: normal !important;
                     hyphens: none !important;
+                    white-space: pre-wrap !important;
                 }
                 .image-block {
                     margin: 0;

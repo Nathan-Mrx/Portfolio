@@ -178,10 +178,21 @@ h6 {
   gap: 2.5rem;
 }
 
-.text-block {
+.text-block,
+.bio-para,
+.ql-editor {
   line-height: 1.8;
   font-size: 1.15rem;
   color: #ccc;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  hyphens: none !important;
+  white-space: pre-wrap !important;
+}
+
+/* Specific fix for Quill editor content to prevent mid-word breaks */
+.ql-editor * {
   word-break: normal !important;
   overflow-wrap: break-word !important;
   hyphens: none !important;
