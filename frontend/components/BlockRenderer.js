@@ -139,7 +139,7 @@ export default function BlockRenderer({ blocks }) {
                     gap: 3rem;
                     margin: 2rem 0;
                 }
-                .text-block {
+                :global(.text-block) {
                     line-height: 1.8;
                     color: #ddd;
                     overflow-wrap: break-word;
