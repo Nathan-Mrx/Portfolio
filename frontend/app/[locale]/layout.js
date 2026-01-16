@@ -33,7 +33,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Nathan-Mrx | Game Dev Portfolio',
-    description: 'Game Developer Portfolio.',
+    description: 'Game Developer Portfolio. Specializing gameplay programming in Unreal Engine 5',
     images: ['/og-image.png'],
   },
   robots: {

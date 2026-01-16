@@ -104,6 +104,7 @@ export default function OptimizedImage({ src, alt, preset = 'CONTENT', className
                 }
                 .object-cover {
                     object-fit: cover;
+                    object-position: center;
                 }
                 .image-placeholder {
                     background: #111;

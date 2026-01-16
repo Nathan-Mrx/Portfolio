@@ -144,7 +144,7 @@ export default function BlockRenderer({ blocks }) {
                     color: #ddd;
                     overflow-wrap: break-word;
                     word-wrap: break-word;
-                    word-break: break-word;
+                    word-break: normal;
                 }
                 .image-block {
                     margin: 0;
