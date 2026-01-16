@@ -188,13 +188,14 @@ h6 {
   overflow-wrap: break-word !important;
   word-wrap: break-word !important;
   hyphens: none !important;
-  white-space: pre-wrap !important;
+  white-space: normal !important;
 }
 
 /* Specific fix for Quill editor content to prevent mid-word breaks */
 .ql-editor * {
   word-break: normal !important;
   overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
   hyphens: none !important;
 }
 

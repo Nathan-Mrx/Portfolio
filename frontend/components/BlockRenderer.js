@@ -147,7 +147,7 @@ export default function BlockRenderer({ blocks }) {
                     word-wrap: break-word !important;
                     word-break: normal !important;
                     hyphens: none !important;
-                    white-space: pre-wrap !important;
+                    white-space: normal !important;
                 }
                 .image-block {
                     margin: 0;
