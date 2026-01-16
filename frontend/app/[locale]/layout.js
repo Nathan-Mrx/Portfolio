@@ -42,6 +42,10 @@ export const metadata = {
   },
 };
 
+export const viewport = {
+  themeColor: '#050505',
+};
+
 export default async function RootLayout({ children, params }) {
   const { locale } = await params;
   const messages = await getMessages();
