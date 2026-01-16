@@ -40,13 +40,15 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
                     background: rgba(255, 255, 255, 0.03);
                     border-color: #333 !important;
                     color: #fff;
-                    word-break: normal !important;
-                    overflow-wrap: break-word !important;
+                    word-break: keep-all !important;
+                    overflow-wrap: normal !important;
+                    word-wrap: normal !important;
                     hyphens: none !important;
                 }
                 .rich-text-editor .ql-editor {
-                    word-break: normal !important;
-                    overflow-wrap: break-word !important;
+                    word-break: keep-all !important;
+                    overflow-wrap: normal !important;
+                    word-wrap: normal !important;
                     hyphens: none !important;
                 }
                 .rich-text-editor .ql-toolbar {

@@ -143,9 +143,9 @@ export default function BlockRenderer({ blocks }) {
                 :global(.text-block *) {
                     line-height: 1.8;
                     color: #ddd;
-                    overflow-wrap: break-word !important;
-                    word-wrap: break-word !important;
-                    word-break: normal !important;
+                    overflow-wrap: normal !important;
+                    word-wrap: normal !important;
+                    word-break: keep-all !important;
                     hyphens: none !important;
                     white-space: pre-wrap !important;
                 }
