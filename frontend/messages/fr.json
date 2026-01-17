@@ -10,8 +10,7 @@
         "projects": "Projets",
         "articles": "Articles",
         "resume": "CV",
-        "about": "À Propos",
-        "contact": "Contact"
+        "about": "À Propos"
     },
     "Projects": {
         "title": "Mes Projets",
@@ -20,30 +19,6 @@
     "Articles": {
         "title": "Derniers Articles",
         "readMore": "Lire la suite"
-    },
-    "Contact": {
-        "tag": "TRANSCEVEUR_ACTIF",
-        "title": "INITIALISER_",
-        "titleHighlight": "TRANSMISSION",
-        "subtitle": "Canal de communication sécurisé pour collaborateurs et recruteurs.",
-        "nameLabel": "IDENTIFIANT_NOM",
-        "namePlaceholder": "UTILISATEUR_INVITÉ",
-        "emailLabel": "ENDPOINT_EMAIL",
-        "emailPlaceholder": "UTILISATEUR@DOMAINE.COM",
-        "messageLabel": "PAYLOAD_DONNÉES",
-        "messagePlaceholder": "TAPEZ_VOTRE_MESSAGE_ICI...",
-        "sendButton": "ENVOI_INTERACTIF",
-        "sending": "TÉLÉVERSEMENT...",
-        "successTitle": "TRANSMISSION_TERMINÉE",
-        "successMessage": "Données routées avec succès vers le terminal de Nathan. Réponse attendue sous peu.",
-        "newReception": "NOUVELLE_RÉCEPTION",
-        "coords": "COORDONNÉES",
-        "directIntel": "INTEL_DIRECT",
-        "geoLoc": "GÉO_LOC",
-        "sysStatus": "STATUT_SYS",
-        "tunnel": "Tunnel chiffré établi...",
-        "latency": "Latence : 24ms",
-        "buffer": "Tampon : VIDE"
     },
     "Resume": {
         "loading": "DÉCRYPTAGE_DONNÉES_CV...",

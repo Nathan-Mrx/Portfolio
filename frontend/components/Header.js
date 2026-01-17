@@ -31,7 +31,6 @@ export default function Header({ locale }) {
         { key: 'articles', path: '/articles' },
         { key: 'resume', path: '/resume' },
         { key: 'about', path: '/about' },
-        { key: 'contact', path: '/contact' },
     ];
 
     const socialLinks = [

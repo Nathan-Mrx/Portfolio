@@ -10,8 +10,7 @@
         "projects": "Projects",
         "articles": "Articles",
         "resume": "Resume",
-        "about": "About",
-        "contact": "Contact"
+        "about": "About"
     },
     "Projects": {
         "title": "My Projects",
@@ -20,30 +19,6 @@
     "Articles": {
         "title": "Latest Articles",
         "readMore": "Read more"
-    },
-    "Contact": {
-        "tag": "TRANSCEIVER_ACTIVE",
-        "title": "INITIATE_",
-        "titleHighlight": "TRANSMISSION",
-        "subtitle": "Secure communication channel for collaborators and recruiters.",
-        "nameLabel": "NAME_IDENTIFIER",
-        "namePlaceholder": "GUEST_USER",
-        "emailLabel": "EMAIL_ENDPOINT",
-        "emailPlaceholder": "USER@DOMAIN.COM",
-        "messageLabel": "DATA_PAYLOAD",
-        "messagePlaceholder": "TYPE_YOUR_MESSAGE_HERE...",
-        "sendButton": "SEND_INTERACTIVE",
-        "sending": "UPLOADING...",
-        "successTitle": "TRANSMISSION_COMPLETE",
-        "successMessage": "Data successfully routed to Nathan's terminal. Expect a response shortly.",
-        "newReception": "NEW_RECEPTION",
-        "coords": "COORDS",
-        "directIntel": "DIRECT_INTEL",
-        "geoLoc": "GEO_LOC",
-        "sysStatus": "SYS_STATUS",
-        "tunnel": "Encrypted tunnel established...",
-        "latency": "Latency: 24ms",
-        "buffer": "Buffer: CLEAR"
     },
     "Resume": {
         "loading": "DECRYPTING_RESUME_DATA...",
