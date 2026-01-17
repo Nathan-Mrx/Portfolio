@@ -1,8 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
-import { usePathname } from 'next/navigation';
+import { Link, useRouter, usePathname } from '@/i18n/routing';
 import { useEffect, useState } from 'react';
 import { Menu, X, Terminal, Command, Github, Linkedin, Gamepad2 } from 'lucide-react';
 
@@ -11,6 +10,8 @@ export default function Header({ locale }) {
     const pathname = usePathname();
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const router = useRouter();
+    const currentPathname = usePathname();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -80,6 +81,22 @@ export default function Header({ locale }) {
                             <Command size={18} />
                         </Link>
                     </div>
+
+                    <div className="locale-switcher">
+                        <button
+                            className={`locale-btn ${locale === 'en' ? 'active' : ''}`}
+                            onClick={() => router.replace(currentPathname, { locale: 'en' })}
+                        >
+                            EN
+                        </button>
+                        <span className="locale-separator">/</span>
+                        <button
+                            className={`locale-btn ${locale === 'fr' ? 'active' : ''}`}
+                            onClick={() => router.replace(currentPathname, { locale: 'fr' })}
+                        >
+                            FR
+                        </button>
+                    </div>
                 </div>
 
                 {/* Mobile Menu Toggle */}
@@ -127,6 +144,21 @@ export default function Header({ locale }) {
                         >
                             <Command size={18} style={{ marginRight: '8px' }} /> Admin Dashboard
                         </Link>
+
+                        <div className="mobile-locale-switcher">
+                            <button
+                                className={`mobile-locale-btn ${locale === 'en' ? 'active' : ''}`}
+                                onClick={() => { router.replace(currentPathname, { locale: 'en' }); setMobileMenuOpen(false); }}
+                            >
+                                ENGLISH
+                            </button>
+                            <button
+                                className={`mobile-locale-btn ${locale === 'fr' ? 'active' : ''}`}
+                                onClick={() => { router.replace(currentPathname, { locale: 'fr' }); setMobileMenuOpen(false); }}
+                            >
+                                FRANÇAIS
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -250,6 +282,42 @@ export default function Header({ locale }) {
                     color: var(--primary);
                 }
 
+                /* Locale Switcher */
+                .locale-switcher {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.25rem;
+                    padding-left: 1.5rem;
+                    border-left: 1px solid rgba(255, 255, 255, 0.1);
+                    font-family: 'JetBrains Mono', monospace;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                }
+
+                .locale-btn {
+                    background: none;
+                    border: none;
+                    color: #555;
+                    cursor: pointer;
+                    padding: 0.2rem 0.4rem;
+                    transition: all 0.3s;
+                    border-radius: 4px;
+                }
+
+                .locale-btn:hover {
+                    color: #ccc;
+                }
+
+                .locale-btn.active {
+                    color: var(--primary);
+                    text-shadow: 0 0 8px var(--primary-glow);
+                }
+
+                .locale-separator {
+                    color: #222;
+                    user-select: none;
+                }
+
                 /* Mobile Navigation */
                 .mobile-toggle {
                     display: none;
@@ -336,6 +404,33 @@ export default function Header({ locale }) {
                     justify-content: center;
                 }
 
+                .mobile-locale-switcher {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 1rem;
+                    margin-top: 0.5rem;
+                }
+
+                .mobile-locale-btn {
+                    background: rgba(255, 255, 255, 0.02);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    color: #666;
+                    padding: 0.8rem;
+                    border-radius: 12px;
+                    font-size: 0.75rem;
+                    font-weight: 800;
+                    letter-spacing: 1px;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+
+                .mobile-locale-btn.active {
+                    background: rgba(0, 255, 102, 0.05);
+                    color: var(--primary);
+                    border-color: var(--primary);
+                    box-shadow: 0 0 15px rgba(0, 255, 102, 0.1);
+                }
+
                 @media (max-width: 900px) {
                     .nav-container {
                         display: none;
@@ -345,6 +440,6 @@ export default function Header({ locale }) {
                     }
                 }
             `}</style>
-        </header>
+        </header >
     );
 }
