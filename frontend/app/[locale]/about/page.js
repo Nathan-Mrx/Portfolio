@@ -187,8 +187,8 @@ export default function AboutPage({ params: paramsPromise }) {
                                     {(profile?.resumeData?.languages || []).map((lang, i) => (
                                         <div key={i} className="language-node-sidebar">
                                             <div className="vital-label">
-                                                <span>{lang.name}</span>
-                                                <span>{lang.status}</span>
+                                                <span>{(locale === 'fr' ? lang.nameFr : lang.nameEn) || lang.name}</span>
+                                                <span>{(locale === 'fr' ? lang.statusFr : lang.statusEn) || lang.status}</span>
                                             </div>
                                             <div className="level-dots">
                                                 {[...Array(5)].map((_, idx) => (
