@@ -3,14 +3,16 @@
         "title": "Gameplay Programmer",
         "description": "Designing player-facing systems and interaction-driven mechanics",
         "projects": "View Projects",
-        "articles": "Read Articles"
+        "articles": "Read Articles",
+        "featuredLabel": "FEATURED_PROJECT",
+        "viewProject": "View Project"
     },
     "Navigation": {
         "home": "Home",
         "projects": "Projects",
         "articles": "Articles",
         "resume": "Resume",
-        "about": "About"
+        "contact": "Contact"
     },
     "Projects": {
         "title": "My Projects",
@@ -37,12 +39,20 @@
         "scan": "SCAN_FOR_VIRTUAL_NODE",
         "footer": "CORE_SYSTEM_EXPORT // NATHAN_MRX_OS_RESUME"
     },
-    "About": {
-        "loading": "CONNECTING_TO_USER_DATA...",
-        "protocols": "KNOWN_PROTOCOLS",
-        "tag": "BIOGRAPHY_V1.0.4",
-        "title": "WHO_IS_@",
-        "titleHighlight": "NATHAN_MRX",
-        "titleEnd": "?"
+    "Contact": {
+        "title": "Get in touch",
+        "subtitle": "Have a project in mind or just want to say hello? I read every message and reply within 48 hours.",
+        "name": "Name",
+        "email": "Email",
+        "subject": "Subject",
+        "message": "Message",
+        "send": "Send message",
+        "sending": "Sending…",
+        "success": "Message sent!",
+        "successDetail": "Thanks for reaching out — I'll get back to you as soon as possible.",
+        "error": "Something went wrong",
+        "errorDetail": "Your message couldn't be sent. Please try again.",
+        "location": "Chicoutimi, QC, Canada",
+        "response": "Replies within 48 hours"
     }
 }

@@ -1,0 +1,59 @@
+# ─────────────────────────────────────────────
+# IDE & editors
+# ─────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.suo
+*.user
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ─────────────────────────────────────────────
+# Frontend — Next.js
+# ─────────────────────────────────────────────
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+frontend/.env.*.local
+frontend/.env.production
+
+# ─────────────────────────────────────────────
+# Backend — Symfony
+# ─────────────────────────────────────────────
+backend/vendor/
+backend/var/
+backend/.env.local
+backend/.env.*.local
+backend/.env.production
+
+# JWT keys — regenerate with lexik:jwt:generate-keypair
+backend/config/jwt/private.pem
+backend/config/jwt/public.pem
+
+# Uploaded media files — serve from object storage in production
+backend/public/uploads/
+
+# Symfony cache/build artifacts
+backend/.php-cs-fixer.cache
+backend/.phpunit.result.cache
+
+# ─────────────────────────────────────────────
+# Root-level loose files
+# ─────────────────────────────────────────────
+composer.phar
+*.phar
+
+# ─────────────────────────────────────────────
+# OS & temp
+# ─────────────────────────────────────────────
+*.log
+*.cache
+*.tmp
+*.bak
+*.orig
+.env.local

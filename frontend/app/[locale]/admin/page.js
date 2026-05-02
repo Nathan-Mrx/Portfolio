@@ -1,656 +1,508 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
-import { Plus, Edit, FileText, Briefcase, Loader2, ExternalLink, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, User } from 'lucide-react';
+import {
+    Plus, Edit, FileText, Briefcase, Loader2, ExternalLink,
+    Search, User, Star, GripVertical, Check,
+} from 'lucide-react';
+import {
+    DndContext, closestCenter,
+    KeyboardSensor, PointerSensor, useSensor, useSensors,
+} from '@dnd-kit/core';
+import {
+    SortableContext, sortableKeyboardCoordinates,
+    verticalListSortingStrategy, useSortable, arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
+function authHeaders(contentType = 'application/ld+json') {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : '';
+    return { 'Content-Type': contentType, 'Authorization': `Bearer ${token}` };
+}
+
+/* ── Sortable row wrapper ── */
+function SortableRow({ id, disabled, children }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+        useSortable({ id, disabled });
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={{ transform: CSS.Transform.toString(transform), transition }}
+            className={`list-row${isDragging ? ' dragging' : ''}`}
+        >
+            <div
+                className={`grip${disabled ? ' grip-hidden' : ''}`}
+                {...(disabled ? {} : { ...attributes, ...listeners })}
+            >
+                <GripVertical size={14} />
+            </div>
+            {children}
+        </div>
+    );
+}
+
+/* ── Autosave status badge ── */
+function SaveStatus({ status }) {
+    if (!status) return null;
+    return (
+        <span className={`save-status ${status}`}>
+            {status === 'saving' && <Loader2 size={11} className="spin" />}
+            {status === 'saved'  && <Check size={11} />}
+            {status === 'saving' ? 'Saving…' : 'Saved'}
+        </span>
+    );
+}
 
 export default function AdminDashboard({ params }) {
     const { locale } = use(params);
 
-    // Project State
-    const [projects, setProjects] = useState([]);
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    );
+
+    /* ── Projects ── */
+    const [allProjects, setAllProjects] = useState([]);
     const [projectSearch, setProjectSearch] = useState('');
-    const [projectPage, setProjectPage] = useState(1);
-    const [totalProjects, setTotalProjects] = useState(0);
     const [projectsLoading, setProjectsLoading] = useState(true);
+    const [projectSaveStatus, setProjectSaveStatus] = useState('');
+    const projectSaveTimer = useRef(null);
 
-    // Article State
-    const [articles, setArticles] = useState([]);
+    /* ── Articles ── */
+    const [allArticles, setAllArticles] = useState([]);
     const [articleSearch, setArticleSearch] = useState('');
-    const [articlePage, setArticlePage] = useState(1);
-    const [totalArticles, setTotalArticles] = useState(0);
     const [articlesLoading, setArticlesLoading] = useState(true);
+    const [articleSaveStatus, setArticleSaveStatus] = useState('');
+    const articleSaveTimer = useRef(null);
 
-    // Initial Load & Updates
-    useEffect(() => {
-        fetchProjects();
-    }, [projectPage, projectSearch]);
-
-    useEffect(() => {
-        fetchArticles();
-    }, [articlePage, articleSearch]);
+    useEffect(() => { fetchProjects(); fetchArticles(); }, []);
 
     const fetchProjects = async () => {
         setProjectsLoading(true);
         try {
-            const query = new URLSearchParams({
-                page: projectPage.toString(),
-                itemsPerPage: '8',
-                'order[createdAt]': 'desc'
-            });
-
-            if (projectSearch) {
-                query.append('titleEn', projectSearch);
-            }
-
-            const url = `${process.env.NEXT_PUBLIC_API_URL}/projects?${query.toString()}`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`API error: ${res.status}`);
-
+            const res = await fetch(`${API_URL}/projects?pagination=false&itemsPerPage=999`);
             const data = await res.json();
-            const members = data['hydra:member'] || data['member'] || [];
-            const total = data['hydra:totalItems'] || data['totalItems'] || 0;
-
-            setProjects(members);
-            setTotalProjects(total);
-        } catch (error) {
-            console.error('Error fetching projects:', error);
-            setProjects([]);
-            setTotalProjects(0);
-        } finally {
-            setProjectsLoading(false);
-        }
+            setAllProjects(data['hydra:member'] || data['member'] || []);
+        } finally { setProjectsLoading(false); }
     };
 
     const fetchArticles = async () => {
         setArticlesLoading(true);
         try {
-            const query = new URLSearchParams({
-                page: articlePage.toString(),
-                itemsPerPage: '8',
-                'order[publishedAt]': 'desc'
-            });
-
-            if (articleSearch) {
-                query.append('titleEn', articleSearch);
-            }
-
-            const url = `${process.env.NEXT_PUBLIC_API_URL}/articles?${query.toString()}`;
-            const res = await fetch(url);
-            if (!res.ok) throw new Error(`API error: ${res.status}`);
-
+            const res = await fetch(`${API_URL}/articles?pagination=false&itemsPerPage=999`);
             const data = await res.json();
-            const members = data['hydra:member'] || data['member'] || [];
-            const total = data['hydra:totalItems'] || data['totalItems'] || 0;
+            setAllArticles(data['hydra:member'] || data['member'] || []);
+        } finally { setArticlesLoading(false); }
+    };
 
-            setArticles(members);
-            setTotalArticles(total);
-        } catch (error) {
-            console.error('Error fetching articles:', error);
-            setArticles([]);
-            setTotalArticles(0);
-        } finally {
-            setArticlesLoading(false);
+    /* ── Reorder helpers ── */
+    const triggerSave = async (url, ids, setStatus, timerRef) => {
+        clearTimeout(timerRef.current);
+        setStatus('saving');
+        try {
+            await fetch(url, {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ ids }),
+            });
+            setStatus('saved');
+        } catch {
+            setStatus('');
         }
+        timerRef.current = setTimeout(() => setStatus(''), 2000);
     };
 
-    const handleProjectSearch = (e) => {
-        setProjectSearch(e.target.value);
-        setProjectPage(1);
+    const handleProjectDragEnd = ({ active, over }) => {
+        if (!over || active.id === over.id) return;
+        setAllProjects(prev => {
+            const next = arrayMove(
+                prev,
+                prev.findIndex(p => p.id === active.id),
+                prev.findIndex(p => p.id === over.id),
+            );
+            triggerSave(`${API_URL}/projects/reorder`, next.map(p => p.id), setProjectSaveStatus, projectSaveTimer);
+            return next;
+        });
     };
 
-    const handleArticleSearch = (e) => {
-        setArticleSearch(e.target.value);
-        setArticlePage(1);
+    const handleArticleDragEnd = ({ active, over }) => {
+        if (!over || active.id === over.id) return;
+        setAllArticles(prev => {
+            const next = arrayMove(
+                prev,
+                prev.findIndex(a => a.id === active.id),
+                prev.findIndex(a => a.id === over.id),
+            );
+            triggerSave(`${API_URL}/articles/reorder`, next.map(a => a.id), setArticleSaveStatus, articleSaveTimer);
+            return next;
+        });
     };
 
-    const Pagination = ({ page, total, setPage, loading }) => {
-        const totalPages = Math.max(1, Math.ceil(total / 8));
-        const [jumpValue, setJumpValue] = useState('');
+    const toggleFeatured = async (project) => {
+        const isNowFeatured = !project.featured;
+        const previousFeatured = allProjects.find(p => p.featured && p.id !== project.id);
 
-        if (total === 0 && !loading) return null;
+        // Optimistic update: at most one featured at a time
+        setAllProjects(prev => prev.map(p => ({
+            ...p,
+            featured: p.id === project.id ? isNowFeatured : false,
+        })));
 
-        let start = Math.max(1, page - 2);
-        let end = Math.min(totalPages, page + 2);
-
-        if (end - start < 4) {
-            if (start === 1) end = Math.min(totalPages, 5);
-            else if (end === totalPages) start = Math.max(1, totalPages - 4);
+        // Unfeature the previous one if switching to a new one
+        if (isNowFeatured && previousFeatured) {
+            await fetch(`${API_URL}/projects/${previousFeatured.id}`, {
+                method: 'PATCH',
+                headers: authHeaders('application/merge-patch+json'),
+                body: JSON.stringify({ featured: false }),
+            });
         }
 
-        const pages = [];
-        for (let i = start; i <= end; i++) pages.push(i);
-
-        const handleJump = (e) => {
-            if (e.key === 'Enter') {
-                const p = parseInt(jumpValue);
-                if (p >= 1 && p <= totalPages) {
-                    setPage(p);
-                    setJumpValue('');
-                }
-            }
-        };
-
-        return (
-            <div className="pagination">
-                <div className="pagination-inner">
-                    <div className="pg-controls">
-                        <button onClick={() => setPage(1)} disabled={page === 1 || loading} className="cyber-btn icon-btn" title="FIRST">
-                            <ChevronsLeft size={18} />
-                        </button>
-                        <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1 || loading} className="cyber-btn icon-btn" title="PREV">
-                            <ChevronLeft size={18} />
-                        </button>
-
-                        <div className="pg-numbers">
-                            {pages.map(p => (
-                                <button
-                                    key={p}
-                                    onClick={() => setPage(p)}
-                                    className={`cyber-btn num-btn ${p === page ? 'active' : ''}`}
-                                    disabled={loading}
-                                >
-                                    {p.toString().padStart(2, '0')}
-                                </button>
-                            ))}
-                        </div>
-
-                        <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages || loading} className="cyber-btn icon-btn" title="NEXT">
-                            <ChevronRight size={18} />
-                        </button>
-                        <button onClick={() => setPage(totalPages)} disabled={page === totalPages || loading} className="cyber-btn icon-btn" title="LAST">
-                            <ChevronsRight size={18} />
-                        </button>
-                    </div>
-
-                    <div className="pg-jump-zone">
-                        <div className="jump-status">
-                            <span className="tiny-label">SYS_PRC:</span>
-                            <span className="data-val">{page.toString().padStart(2, '0')}</span>
-                            <span className="divider">/</span>
-                            <span className="data-total">{totalPages.toString().padStart(2, '0')}</span>
-                        </div>
-                        <div className="jump-input-wrapper">
-                            <span className="tiny-label">GOTO:</span>
-                            <input
-                                type="text"
-                                placeholder="--"
-                                value={jumpValue}
-                                onChange={e => setJumpValue(e.target.value)}
-                                onKeyDown={handleJump}
-                                className="cyber-mini-input"
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div className="pg-decoration">
-                    <div className="decor-line"></div>
-                    <div className="decor-dots"><span></span><span></span><span></span></div>
-                </div>
-            </div>
-        );
+        await fetch(`${API_URL}/projects/${project.id}`, {
+            method: 'PATCH',
+            headers: authHeaders('application/merge-patch+json'),
+            body: JSON.stringify({ featured: isNowFeatured }),
+        });
     };
+
+    /* ── Filtered views (client-side search) ── */
+    const filteredProjects = projectSearch
+        ? allProjects.filter(p =>
+            p.titleEn?.toLowerCase().includes(projectSearch.toLowerCase()) ||
+            p.titleFr?.toLowerCase().includes(projectSearch.toLowerCase()))
+        : allProjects;
+
+    const filteredArticles = articleSearch
+        ? allArticles.filter(a =>
+            a.titleEn?.toLowerCase().includes(articleSearch.toLowerCase()) ||
+            a.titleFr?.toLowerCase().includes(articleSearch.toLowerCase()))
+        : allArticles;
+
+    const isSearchingProjects = projectSearch.length > 0;
+    const isSearchingArticles = articleSearch.length > 0;
 
     return (
         <div className="admin-dashboard">
-            <header className="dashboard-header">
-                <h1>ADMIN_CMD : <span className="neon-text">DASHBOARD</span></h1>
+            {/* ── Header ── */}
+            <header className="dash-header">
+                <h1>ADMIN_CMD : <span className="neon">DASHBOARD</span></h1>
                 <div className="quick-actions">
-                    <Link href={`/${locale}/admin/profile`} className="cyber-rect-btn primary">
-                        <User size={18} /> <span>ABOUT_EDITOR</span>
-                    </Link>
-                    <Link href={`/${locale}/admin/projects/create`} className="cyber-rect-btn primary">
-                        <Plus size={18} /> <span>CRT_PROJECT</span>
-                    </Link>
-                    <Link href={`/${locale}/admin/articles/create`} className="cyber-rect-btn primary">
-                        <Plus size={18} /> <span>CRT_ARTICLE</span>
-                    </Link>
+                    <Link href={`/${locale}/admin/profile`} className="cta-btn"><User size={16} /> Profile</Link>
+                    <Link href={`/${locale}/admin/projects/create`} className="cta-btn"><Plus size={16} /> New project</Link>
+                    <Link href={`/${locale}/admin/articles/create`} className="cta-btn"><Plus size={16} /> New article</Link>
                 </div>
             </header>
 
-            <div className="stats-grid">
-                <div className="stat-card hud-glass">
-                    <div className="stat-header">
-                        <Briefcase size={16} className="neon-text" />
-                        <span className="hud-label">PRJ_TOTAL</span>
-                    </div>
-                    <div className="stat-body">
-                        <div className="stat-value neon-text">{totalProjects.toString().padStart(3, '0')}</div>
-                        <div className="stat-graph"><div className="bar" style={{ width: '70%' }}></div></div>
-                    </div>
+            {/* ── Stats ── */}
+            <div className="stats-row">
+                <div className="stat hud-glass">
+                    <Briefcase size={14} className="neon" />
+                    <span className="stat-val neon">{allProjects.length.toString().padStart(3, '0')}</span>
+                    <span className="stat-lbl">Projects</span>
                 </div>
-                <div className="stat-card hud-glass">
-                    <div className="stat-header">
-                        <FileText size={16} className="neon-text" />
-                        <span className="hud-label">ART_TOTAL</span>
-                    </div>
-                    <div className="stat-body">
-                        <div className="stat-value neon-text">{totalArticles.toString().padStart(3, '0')}</div>
-                        <div className="stat-graph"><div className="bar" style={{ width: '45%' }}></div></div>
-                    </div>
+                <div className="stat hud-glass">
+                    <FileText size={14} className="neon" />
+                    <span className="stat-val neon">{allArticles.length.toString().padStart(3, '0')}</span>
+                    <span className="stat-lbl">Articles</span>
                 </div>
             </div>
 
-            <div className="management-sections">
-                <section className="dashboard-section hud-glass">
-                    <div className="section-header">
-                        <h2 className="hud-title"><span className="caret">{'>'}</span> DATABASE_PROJECTS</h2>
-                        <div className="hud-search-wrapper">
-                            <Search size={14} className="neon-text" />
-                            <input
-                                type="text"
-                                placeholder="SRC_TITLE..."
-                                value={projectSearch}
-                                onChange={handleProjectSearch}
-                                className="hud-input-field"
-                            />
+            {/* ── Sections ── */}
+            <div className="sections">
+                {/* Projects */}
+                <section className="panel hud-glass">
+                    <div className="panel-header">
+                        <h2 className="panel-title"><span className="neon">›</span> Projects</h2>
+                        <div className="panel-actions">
+                            <SaveStatus status={projectSaveStatus} />
+                            <div className="search-box">
+                                <Search size={13} className="neon" />
+                                <input
+                                    placeholder="Search…"
+                                    value={projectSearch}
+                                    onChange={e => setProjectSearch(e.target.value)}
+                                    className="search-input"
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="data-list">
+                    <div className="list-wrap">
                         {projectsLoading ? (
-                            <div className="hud-loading"><Loader2 className="animate-spin neon-text" /></div>
-                        ) : projects.length > 0 ? (
-                            projects.map(project => (
-                                <div key={project.id} className="data-item cyber-list-card">
-                                    <div className="item-content">
-                                        <div className="item-title">{project.titleEn}</div>
-                                        <div className="item-sub">ID: #{project.id.toString().padStart(4, '0')} | DATE: {new Date(project.createdAt).toLocaleDateString()}</div>
-                                    </div>
-                                    <div className="item-actions">
-                                        <Link href={`/${locale}/admin/projects/${project.id}/edit`} className="cyber-icon-link" title="EDIT">
-                                            <Edit size={16} />
-                                        </Link>
-                                        <a href={`/${locale}/projects/${project.id}`} target="_blank" className="cyber-icon-link" title="VIEW">
-                                            <ExternalLink size={16} />
-                                        </a>
-                                    </div>
-                                </div>
-                            ))
+                            <div className="loading"><Loader2 size={20} className="spin neon" /></div>
+                        ) : filteredProjects.length === 0 ? (
+                            <div className="empty">No projects found.</div>
                         ) : (
-                            <div className="empty-state">NULL_DATA_SET</div>
+                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleProjectDragEnd}>
+                                <SortableContext items={filteredProjects.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                                    {filteredProjects.map(project => (
+                                        <SortableRow key={project.id} id={project.id} disabled={isSearchingProjects}>
+                                            <div className="row-content">
+                                                <div className="row-title">{project.titleEn}</div>
+                                                <div className="row-meta">#{project.id.toString().padStart(4,'0')} · {new Date(project.createdAt).toLocaleDateString()}</div>
+                                            </div>
+                                            <div className="row-actions">
+                                                <button
+                                                    className={`icon-btn${project.featured ? ' featured' : ''}`}
+                                                    onClick={() => toggleFeatured(project)}
+                                                    title={project.featured ? 'Remove from featured' : 'Set as featured'}
+                                                >
+                                                    <Star size={14} fill={project.featured ? 'currentColor' : 'none'} />
+                                                </button>
+                                                <Link href={`/${locale}/admin/projects/${project.id}/edit`} className="icon-btn" title="Edit"><Edit size={14} /></Link>
+                                                <a href={`/${locale}/projects/${project.id}`} target="_blank" className="icon-btn" title="View"><ExternalLink size={14} /></a>
+                                            </div>
+                                        </SortableRow>
+                                    ))}
+                                </SortableContext>
+                            </DndContext>
                         )}
                     </div>
-
-                    <Pagination page={projectPage} total={totalProjects} setPage={setProjectPage} loading={projectsLoading} />
                 </section>
 
-                <section className="dashboard-section hud-glass">
-                    <div className="section-header">
-                        <h2 className="hud-title"><span className="caret">{'>'}</span> DATABASE_ARTICLES</h2>
-                        <div className="hud-search-wrapper">
-                            <Search size={14} className="neon-text" />
-                            <input
-                                type="text"
-                                placeholder="SRC_TITLE..."
-                                value={articleSearch}
-                                onChange={handleArticleSearch}
-                                className="hud-input-field"
-                            />
+                {/* Articles */}
+                <section className="panel hud-glass">
+                    <div className="panel-header">
+                        <h2 className="panel-title"><span className="neon">›</span> Articles</h2>
+                        <div className="panel-actions">
+                            <SaveStatus status={articleSaveStatus} />
+                            <div className="search-box">
+                                <Search size={13} className="neon" />
+                                <input
+                                    placeholder="Search…"
+                                    value={articleSearch}
+                                    onChange={e => setArticleSearch(e.target.value)}
+                                    className="search-input"
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="data-list">
+                    <div className="list-wrap">
                         {articlesLoading ? (
-                            <div className="hud-loading"><Loader2 className="animate-spin neon-text" /></div>
-                        ) : articles.length > 0 ? (
-                            articles.map(article => (
-                                <div key={article.id} className="data-item cyber-list-card">
-                                    <div className="item-content">
-                                        <div className="item-title">{article.titleEn}</div>
-                                        <div className="item-sub">ID: #{article.id.toString().padStart(4, '0')} | STATUS: {article.publishedAt ? 'PUBLIC' : 'DRAFT'}</div>
-                                    </div>
-                                    <div className="item-actions">
-                                        <Link href={`/${locale}/admin/articles/${article.id}/edit`} className="cyber-icon-link" title="EDIT">
-                                            <Edit size={16} />
-                                        </Link>
-                                        <a href={`/${locale}/articles/${article.id}`} target="_blank" className="cyber-icon-link" title="VIEW">
-                                            <ExternalLink size={16} />
-                                        </a>
-                                    </div>
-                                </div>
-                            ))
+                            <div className="loading"><Loader2 size={20} className="spin neon" /></div>
+                        ) : filteredArticles.length === 0 ? (
+                            <div className="empty">No articles found.</div>
                         ) : (
-                            <div className="empty-state">NULL_DATA_SET</div>
+                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleArticleDragEnd}>
+                                <SortableContext items={filteredArticles.map(a => a.id)} strategy={verticalListSortingStrategy}>
+                                    {filteredArticles.map(article => (
+                                        <SortableRow key={article.id} id={article.id} disabled={isSearchingArticles}>
+                                            <div className="row-content">
+                                                <div className="row-title">{article.titleEn}</div>
+                                                <div className="row-meta">#{article.id.toString().padStart(4,'0')} · {article.publishedAt ? 'Published' : 'Draft'}</div>
+                                            </div>
+                                            <div className="row-actions">
+                                                <Link href={`/${locale}/admin/articles/${article.id}/edit`} className="icon-btn" title="Edit"><Edit size={14} /></Link>
+                                                <a href={`/${locale}/articles/${article.id}`} target="_blank" className="icon-btn" title="View"><ExternalLink size={14} /></a>
+                                            </div>
+                                        </SortableRow>
+                                    ))}
+                                </SortableContext>
+                            </DndContext>
                         )}
                     </div>
-
-                    <Pagination page={articlePage} total={totalArticles} setPage={setArticlePage} loading={articlesLoading} />
                 </section>
             </div>
 
             <style jsx>{`
                 .admin-dashboard {
                     padding: 2rem;
-                    max-width: 1600px;
+                    max-width: 1400px;
                     margin: 0 auto;
                     color: #e0e0e0;
-                    background: #080808;
-                    font-family: 'JetBrains Mono', 'Courier New', monospace;
+                    font-family: 'JetBrains Mono', monospace;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2rem;
                 }
 
-                .neon-text {
-                    color: var(--primary);
-                    text-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
-                }
+                .neon { color: var(--primary); }
 
                 .hud-glass {
-                    background: rgba(15, 15, 15, 0.7);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+                    background: rgba(12,12,12,0.8);
+                    border: 1px solid rgba(255,255,255,0.06);
                     position: relative;
                 }
-
                 .hud-glass::before {
                     content: '';
                     position: absolute;
-                    top: -1px; left: -1px; width: 10px; height: 10px;
+                    top: -1px; left: -1px;
+                    width: 10px; height: 10px;
                     border-top: 2px solid var(--primary);
                     border-left: 2px solid var(--primary);
                 }
 
-                .dashboard-header {
+                /* Header */
+                .dash-header {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 3rem;
+                    flex-wrap: wrap;
+                    gap: 1rem;
                     padding-bottom: 1.5rem;
                     border-bottom: 1px solid rgba(255,255,255,0.05);
                 }
-
-                .dashboard-header h1 {
-                    font-size: 1.25rem;
-                    letter-spacing: 4px;
-                    margin: 0;
-                }
-
-                .cyber-rect-btn {
-                    display: flex;
+                .dash-header h1 { font-size: 1.1rem; letter-spacing: 3px; margin: 0; }
+                .quick-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+                .cta-btn {
+                    display: inline-flex;
                     align-items: center;
-                    gap: 1rem;
-                    padding: 0.8rem 2rem;
-                    background: #000;
-                    border: 1px solid var(--primary);
-                    color: var(--primary);
-                    font-weight: 800;
-                    font-size: 0.85rem;
-                    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-                    clip-path: polygon(0% 0%, 90% 0%, 100% 30%, 100% 100%, 10% 100%, 0% 70%);
-                }
-
-                .cyber-rect-btn:hover {
-                    background: var(--primary);
-                    color: #000;
-                    box-shadow: 0 0 20px rgba(0, 255, 102, 0.4);
-                }
-
-                .stats-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                    gap: 2rem;
-                    margin-bottom: 3rem;
-                }
-
-                .stat-card {
-                    padding: 1.5rem;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1rem;
-                }
-
-                .stat-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.75rem;
-                }
-
-                .hud-label {
-                    font-size: 0.7rem;
-                    color: #555;
-                    font-weight: 700;
-                    letter-spacing: 1px;
-                }
-
-                .stat-value {
-                    font-size: 2.5rem;
-                    font-weight: 900;
-                    line-height: 1;
-                }
-
-                .stat-graph {
-                    height: 4px;
-                    background: #1a1a1a;
-                    width: 100%;
-                    margin-top: 1rem;
-                }
-
-                .stat-graph .bar {
-                    height: 100%;
-                    background: var(--primary);
-                    box-shadow: 0 0 10px var(--primary);
-                }
-
-                .management-sections {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 2rem;
-                }
-
-                .dashboard-section {
-                    padding: 2rem;
-                    min-height: 500px;
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                .hud-title {
-                    font-size: 0.9rem;
-                    font-weight: 800;
-                    color: #888;
-                    margin: 0;
-                }
-
-                .caret { color: var(--primary); }
-
-                .hud-search-wrapper {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.75rem;
-                    background: #0a0a0a;
-                    border: 1px solid #222;
-                    padding: 0.5rem 1rem;
-                }
-
-                .hud-input-field {
+                    gap: 0.5rem;
+                    padding: 0.6rem 1.25rem;
                     background: transparent;
-                    border: none;
-                    color: #fff;
-                    font-size: 0.8rem;
-                    font-family: inherit;
-                    width: 100%;
-                }
-
-                .hud-input-field:focus { outline: none; }
-
-                .data-list {
-                    flex: 1;
-                    margin: 1.5rem 0;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 0.75rem;
-                }
-
-                .cyber-list-card {
-                    padding: 1rem 1.5rem;
-                    background: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    transition: all 0.2s;
-                    border-left: 2px solid transparent;
-                }
-
-                .cyber-list-card:hover {
-                    background: rgba(0, 255, 102, 0.03);
-                    border-left-color: var(--primary);
-                    transform: translateX(5px);
-                }
-
-                .item-title {
+                    border: 1px solid rgba(0,255,157,0.3);
+                    color: var(--primary);
+                    font-size: 0.78rem;
                     font-weight: 700;
-                    font-size: 0.95rem;
+                    font-family: inherit;
+                    cursor: pointer;
+                    transition: background 0.2s, border-color 0.2s;
+                    text-decoration: none;
                 }
+                .cta-btn:hover { background: rgba(0,255,157,0.08); border-color: var(--primary); color: var(--primary); }
 
-                .item-sub {
-                    font-size: 0.65rem;
-                    color: #555;
-                    margin-top: 0.25rem;
-                }
-
-                .item-actions {
+                /* Stats */
+                .stats-row { display: flex; gap: 1rem; }
+                .stat {
                     display: flex;
+                    align-items: center;
                     gap: 0.75rem;
+                    padding: 1rem 1.5rem;
+                    flex: 1;
+                    max-width: 220px;
                 }
+                .stat-val { font-size: 1.6rem; font-weight: 900; line-height: 1; }
+                .stat-lbl { font-size: 0.65rem; color: #444; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 
-                .cyber-icon-link {
-                    color: #444;
-                    padding: 0.5rem;
-                    background: #111;
-                    border: 1px solid #222;
-                    transition: all 0.2s;
-                }
+                /* Sections grid */
+                .sections { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 
-                .cyber-icon-link:hover {
-                    color: var(--primary);
-                    border-color: var(--primary);
-                    box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
-                }
-
-                /* PAGINATION REDESIGN */
-                .pagination {
-                    margin-top: auto;
-                    padding: 1.5rem 0 0 0;
-                    border-top: 1px dashed rgba(255,255,255,0.1);
-                }
-
-                .pagination-inner {
+                /* Panel */
+                .panel { display: flex; flex-direction: column; }
+                .panel-header {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    gap: 2rem;
+                    padding: 1.25rem 1.5rem;
+                    border-bottom: 1px solid rgba(255,255,255,0.04);
+                    gap: 1rem;
                 }
+                .panel-title { font-size: 0.85rem; font-weight: 800; color: #888; margin: 0; letter-spacing: 1px; }
+                .panel-actions { display: flex; align-items: center; gap: 0.75rem; }
 
-                .pg-controls {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.4rem;
-                }
-
-                .pg-numbers {
-                    display: flex;
-                    gap: 0.4rem;
-                }
-
-                .cyber-btn {
-                    background: #0a0a0a;
-                    border: 1px solid #333;
-                    color: #666;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-family: inherit;
-                    font-weight: 800;
-                    position: relative;
-                    transition: all 0.2s;
-                }
-
-                .icon-btn { width: 40px; height: 35px; }
-                .num-btn { width: 40px; height: 35px; font-size: 0.8rem; }
-
-                .cyber-btn:hover:not(:disabled) {
-                    border-color: var(--primary);
-                    color: var(--primary);
-                    box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
-                }
-
-                .cyber-btn.active {
-                    background: var(--primary);
-                    color: #000;
-                    border-color: var(--primary);
-                    box-shadow: 0 0 20px rgba(0, 255, 102, 0.5);
-                }
-
-                .cyber-btn:disabled {
-                    opacity: 0.2;
-                    cursor: not-allowed;
-                }
-
-                .pg-jump-zone {
-                    display: flex;
-                    align-items: center;
-                    gap: 1.5rem;
-                }
-
-                .jump-status {
-                    display: flex;
-                    align-items: baseline;
-                    gap: 0.4rem;
-                }
-
-                .tiny-label {
-                    font-size: 0.6rem;
-                    color: #444;
-                    font-weight: 900;
-                }
-
-                .data-val { color: var(--primary); font-size: 1.1rem; }
-                .data-total { color: #555; font-size: 0.8rem; }
-                .divider { color: #222; }
-
-                .jump-input-wrapper {
+                .search-box {
                     display: flex;
                     align-items: center;
                     gap: 0.5rem;
-                    border: 1px solid #222;
-                    padding: 0.2rem 0.6rem;
-                    background: #000;
+                    background: rgba(0,0,0,0.3);
+                    border: 1px solid rgba(255,255,255,0.06);
+                    padding: 0.4rem 0.75rem;
                 }
-
-                .cyber-mini-input {
-                    width: 30px;
+                .search-input {
                     background: transparent;
                     border: none;
-                    border-bottom: 1px solid #333;
-                    color: var(--primary);
-                    text-align: center;
-                    font-size: 0.8rem;
+                    color: #ccc;
+                    font-size: 0.78rem;
                     font-family: inherit;
+                    width: 140px;
+                    outline: none;
                 }
 
-                .cyber-mini-input:focus { outline: none; border-bottom-color: var(--primary); }
+                /* Save status */
+                .save-status {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.35rem;
+                    font-size: 0.65rem;
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
+                    white-space: nowrap;
+                }
+                .save-status.saving { color: #888; }
+                .save-status.saved  { color: var(--primary); }
 
-                .pg-decoration {
-                    margin-top: 1rem;
+                /* List */
+                .list-wrap {
+                    overflow-y: auto;
+                    max-height: 480px;
+                    padding: 0.5rem 0;
+                    scrollbar-width: thin;
+                    scrollbar-color: rgba(0,255,157,0.15) transparent;
+                }
+
+                /* Row */
+                :global(.list-row) {
                     display: flex;
                     align-items: center;
-                    gap: 1rem;
-                    opacity: 0.5;
+                    gap: 0.5rem;
+                    padding: 0.75rem 1.5rem;
+                    border-left: 2px solid transparent;
+                    transition: background 0.15s, border-color 0.15s;
+                }
+                :global(.list-row:hover) {
+                    background: rgba(0,255,102,0.03);
+                    border-left-color: rgba(0,255,157,0.4);
+                }
+                :global(.list-row.dragging) {
+                    background: rgba(0,255,102,0.07);
+                    border-left-color: var(--primary);
+                    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+                    z-index: 10;
                 }
 
-                .decor-line { height: 1px; flex: 1; background: linear-gradient(90deg, var(--primary), transparent); }
-                .decor-dots { display: flex; gap: 4px; }
-                .decor-dots span { width: 4px; height: 4px; border: 1px solid var(--primary); }
+                /* Grip */
+                :global(.grip) {
+                    color: #2a2a2a;
+                    cursor: grab;
+                    display: flex;
+                    align-items: center;
+                    flex-shrink: 0;
+                    transition: color 0.15s;
+                    touch-action: none;
+                }
+                :global(.grip:active) { cursor: grabbing; }
+                :global(.list-row:hover .grip) { color: #444; }
+                :global(.list-row.dragging .grip) { color: var(--primary); }
+                :global(.grip.grip-hidden) { opacity: 0; pointer-events: none; }
 
-                .hud-loading { height: 100px; display: flex; center; align-items: center; justify-content: center; }
-                .animate-spin { animation: spin 1s linear infinite; }
-                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                .row-content { flex: 1; min-width: 0; }
+                .row-title { font-size: 0.88rem; font-weight: 600; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                .row-meta { font-size: 0.6rem; color: #444; margin-top: 0.15rem; }
 
-                @media (max-width: 1200px) {
-                    .management-sections { grid-template-columns: 1fr; }
-                    .pagination-inner { flex-direction: column; gap: 1rem; }
+                .row-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+                .icon-btn {
+                    color: #333;
+                    padding: 0.35rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: transparent;
+                    border: 1px solid transparent;
+                    cursor: pointer;
+                    transition: color 0.15s, border-color 0.15s;
+                    text-decoration: none;
+                }
+                .icon-btn:hover { color: var(--primary); border-color: rgba(0,255,157,0.2); }
+                .icon-btn.featured { color: #ffd700; }
+                .icon-btn.featured:hover { color: #ffd700; border-color: rgba(255,215,0,0.3); }
+
+                .loading { height: 120px; display: flex; align-items: center; justify-content: center; }
+                .empty { padding: 2rem; text-align: center; color: #2a2a2a; font-size: 0.8rem; }
+
+                :global(.spin) { animation: spin 0.9s linear infinite; }
+                @keyframes spin { to { transform: rotate(360deg); } }
+
+                @media (max-width: 1100px) {
+                    .sections { grid-template-columns: 1fr; }
+                }
+                @media (max-width: 700px) {
+                    .admin-dashboard { padding: 1rem; }
+                    .dash-header { flex-direction: column; align-items: flex-start; }
+                    .stats-row { flex-wrap: wrap; }
                 }
             `}</style>
         </div>

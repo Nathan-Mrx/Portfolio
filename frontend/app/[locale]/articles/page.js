@@ -22,7 +22,7 @@ export default function Articles({ params: paramsPromise }) {
 
     useEffect(() => {
         setLoading(true);
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/articles?page=${currentPage}&order[publishedAt]=desc`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/articles?page=${currentPage}`)
             .then(res => res.json())
             .then(data => {
                 setArticles(data['hydra:member'] || data['member'] || []);

@@ -1,6 +1,6 @@
 # Nathan-Mrx Portfolio
 
-![Nathan-Mrx Banner](https://img.shields.io/badge/Status-Online-00ff66?style=for-the-badge) ![Version](https://img.shields.io/badge/Version-2.0.0-00ff66?style=for-the-badge) ![License](https://img.shields.io/badge/License-Proprietary-00ff66?style=for-the-badge)
+![Nathan-Mrx Banner](https://img.shields.io/badge/Status-Online-00ff66?style=for-the-badge) ![Version](https://img.shields.io/badge/Version-2.1.0-00ff66?style=for-the-badge) ![License](https://img.shields.io/badge/License-Proprietary-00ff66?style=for-the-badge)
 
 A cutting-edge, cyber-themed portfolio website built with **Next.js 16** and **Symfony 8**. Designed to showcase projects, articles, and professional experience with an immersive "hacker console" aesthetic.
 

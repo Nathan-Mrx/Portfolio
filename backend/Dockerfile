@@ -6,5 +6,9 @@ RUN apt-get update && apt-get install -y libpq-dev libicu-dev zip unzip \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY docker/php/conf.d/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 WORKDIR /app
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

@@ -8,6 +8,7 @@ use App\Repository\ProjectRepository;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -21,13 +22,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ApiResource(
     normalizationContext: ['groups' => ['project:read']],
     denormalizationContext: ['groups' => ['project:write']],
+    order: ['position' => 'ASC', 'createdAt' => 'DESC'],
     paginationEnabled: true,
     paginationItemsPerPage: 8,
     paginationClientItemsPerPage: true,
     paginationClientEnabled: true
 )]
 #[ApiFilter(SearchFilter::class, properties: ['titleEn' => 'ipartial', 'titleFr' => 'ipartial'])]
-#[ApiFilter(OrderFilter::class, properties: ['createdAt' => 'DESC'])]
+#[ApiFilter(OrderFilter::class, properties: ['position' => 'ASC', 'createdAt' => 'DESC'])]
+#[ApiFilter(BooleanFilter::class, properties: ['featured'])]
 class Project
 {
     #[ORM\Id]
@@ -98,6 +101,14 @@ class Project
     #[ORM\Column]
     #[Groups(['project:read'])]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['project:read', 'project:write'])]
+    private ?int $position = null;
+
+    #[ORM\Column(options: ['default' => false])]
+    #[Groups(['project:read', 'project:write'])]
+    private bool $featured = false;
 
     public function __construct()
     {
@@ -375,6 +386,28 @@ class Project
     {
         $this->relatedProjects->removeElement($project);
 
+        return $this;
+    }
+
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(?int $position): static
+    {
+        $this->position = $position;
+        return $this;
+    }
+
+    public function isFeatured(): bool
+    {
+        return $this->featured;
+    }
+
+    public function setFeatured(bool $featured): static
+    {
+        $this->featured = $featured;
         return $this;
     }
 }

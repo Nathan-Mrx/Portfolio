@@ -32,6 +32,7 @@ export default function Login() {
 
             const data = await res.json();
             localStorage.setItem('token', data.token);
+            document.cookie = 'admin_auth=1; path=/; SameSite=Strict';
             router.push('/admin');
         } catch (err) {
             console.error('Fetch error details:', err);

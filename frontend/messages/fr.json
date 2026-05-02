@@ -1,16 +1,18 @@
 {
     "HomePage": {
         "title": "Gameplay Programmer",
-        "description": "Conception de systèmes orientés joueur et de mécaniques d’interaction",
+        "description": "Conception de systèmes orientés joueur et de mécaniques d'interaction",
         "projects": "Voir les projets",
-        "articles": "Lire les articles"
+        "articles": "Lire les articles",
+        "featuredLabel": "PROJET_EN_VEDETTE",
+        "viewProject": "Voir le projet"
     },
     "Navigation": {
         "home": "Accueil",
         "projects": "Projets",
         "articles": "Articles",
         "resume": "CV",
-        "about": "À Propos"
+        "contact": "Contact"
     },
     "Projects": {
         "title": "Mes Projets",
@@ -37,12 +39,20 @@
         "scan": "SCANNER_POUR_NOEUD_VIRTUEL",
         "footer": "EXPORT_SYSTÈME_CENTRAL // CV_OS_NATHAN_MRX"
     },
-    "About": {
-        "loading": "CONNEXION_AUX_DONNÉES_UTILISATEUR...",
-        "protocols": "PROTOCOLES_CONNUS",
-        "tag": "BIOGRAPHIE_V1.0.4",
-        "title": "QUI_EST_@",
-        "titleHighlight": "NATHAN_MRX",
-        "titleEnd": "?"
+    "Contact": {
+        "title": "Me contacter",
+        "subtitle": "Un projet en tête ou juste envie de dire bonjour ? Je lis chaque message et réponds sous 48 heures.",
+        "name": "Nom",
+        "email": "Email",
+        "subject": "Sujet",
+        "message": "Message",
+        "send": "Envoyer",
+        "sending": "Envoi en cours…",
+        "success": "Message envoyé !",
+        "successDetail": "Merci de m'avoir contacté — je vous répondrai dès que possible.",
+        "error": "Une erreur est survenue",
+        "errorDetail": "Votre message n'a pas pu être envoyé. Veuillez réessayer.",
+        "location": "Chicoutimi, QC, Canada",
+        "response": "Réponse sous 48 heures"
     }
 }

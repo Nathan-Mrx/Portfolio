@@ -20,12 +20,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ApiResource(
     normalizationContext: ['groups' => ['article:read']],
     denormalizationContext: ['groups' => ['article:write']],
+    order: ['position' => 'ASC', 'publishedAt' => 'DESC'],
     paginationEnabled: true,
     paginationItemsPerPage: 8,
     paginationClientItemsPerPage: true
 )]
 #[ApiFilter(SearchFilter::class, properties: ['titleEn' => 'ipartial', 'titleFr' => 'ipartial'])]
-#[ApiFilter(OrderFilter::class, properties: ['publishedAt' => 'DESC'])]
+#[ApiFilter(OrderFilter::class, properties: ['position' => 'ASC', 'publishedAt' => 'DESC'])]
 class Article
 {
     #[ORM\Id]
@@ -75,6 +76,10 @@ class Article
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['article:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['article:read', 'article:write'])]
+    private ?int $position = null;
 
     #[ORM\ManyToMany(targetEntity: Project::class, inversedBy: 'linkedArticles')]
     #[Groups(['article:read', 'article:write'])]
@@ -324,6 +329,17 @@ class Article
     {
         $this->relatedArticles->removeElement($article);
 
+        return $this;
+    }
+
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(?int $position): static
+    {
+        $this->position = $position;
         return $this;
     }
 }

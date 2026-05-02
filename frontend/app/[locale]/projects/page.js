@@ -22,7 +22,7 @@ export default function Projects({ params: paramsPromise }) {
 
     useEffect(() => {
         setLoading(true);
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/projects?page=${currentPage}&order[createdAt]=desc`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/projects?page=${currentPage}`)
             .then(res => res.json())
             .then(data => {
                 setProjects(data['hydra:member'] || data['member'] || []);
