@@ -4,7 +4,7 @@ set -e
 cd /app
 
 echo "Installing dependencies..."
-composer install --no-interaction --optimize-autoloader
+composer install --no-interaction --optimize-autoloader --no-scripts
 
 echo "Running database migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction
