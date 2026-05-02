@@ -30,9 +30,10 @@ class ContactController extends AbstractController
         }
 
         $to = $_ENV['CONTACT_EMAIL'] ?? 'contact@example.com';
+        $sender = $_ENV['MAILER_FROM'] ?? $to;
 
         $email = (new Email())
-            ->from('noreply@portfolio.local')
+            ->from($sender)
             ->replyTo($from)
             ->to($to)
             ->subject("[Portfolio Contact] $subject")
